@@ -28,7 +28,8 @@ AI エージェント向けの設定の単一情報源（SSOT）。`CLAUDE.md` �
 - 数値・ダイス・判定・リソースは**エンジンが正**。AI は描写とツール呼び出し（`request_check` / `modify_resource` / `end_session`）だけ。AI に数値を決めさせない。
 - LLM は OpenAI 互換 `chat/completions` を 1 クラスで叩く。プロバイダごとのクラスや抽象化を増やさない。非ストリーミング。
 - シリアライズは `JsonUtility` の範囲に収める（Dictionary は key/value 配列）。外部 JSON ライブラリを足さない。
-- 依存パッケージを増やさない。標準ライブラリ → Unity 標準機能 → 既存パッケージの順で探す。
+- 依存パッケージを増やさない。標準ライブラリ → Unity 標準機能 → 既存パッケージの順で探す。パッケージを外すときは `Packages/packages-lock.json` で何を提供しているか確かめてから。
+- `com.unity.ai.assistant` は **開発用の依存**（Unity MCP のリレー `Unity.AI.MCP.Editor` を含む。外すと Cowork からの Unity 操作が止まる）。`com.unity.recorder` はデバッグ録画用。ランタイムはどちらにも依存しない。AI 機能を使わないフォーク先では外して構わない。
 - 段階拡張（画像切替 `set_scene`、所持品、技能予算の強制）は `docs/REQUIREMENTS.md` §8 に従い、基本動線が安定してから。
 
 ## 5. ロールプレイ
