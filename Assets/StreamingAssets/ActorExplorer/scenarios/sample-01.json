@@ -1,0 +1,14 @@
+{
+  "id": "sample-01",
+  "title": { "ja": "終着駅の忘れ物", "en": "Lost Property at the Last Stop" },
+  "summary": {
+    "ja": "廃線になった支線の終着駅で、失踪した駅員の手がかりを探す短い調査シナリオ。1〜2 時間。戦闘は任意。",
+    "en": "A short investigation at the terminal station of a closed branch line, looking for a vanished station attendant. 1-2 hours, combat optional."
+  },
+  "openingText": {
+    "ja": "秋の夕方。三年前に廃線になった支線の終着駅「霧谷（きりたに）」に、あなたたちは立っている。依頼人は元駅員の妹・園田ミナ。兄の園田ケイが先週、廃駅の見回りに出たまま戻らない。駅舎の扉は開いたまま、待合室のベンチには、まだ温かい缶コーヒーが置かれている。",
+    "en": "An autumn evening. You stand at Kiritani, the terminal station of a branch line closed three years ago. Your client, Mina Sonoda, says her brother Kei, a former station attendant, went to check on the abandoned station last week and never came back. The station door is open, and on a waiting-room bench sits a can of coffee that is still warm."
+  },
+  "gmNotes": "# 舞台\n霧谷駅: 木造駅舎（待合室・駅務室・倉庫）、プラットホーム 1 本、線路の先は山側のトンネル（入口は柵で封鎖、柵の一部が最近切られている）。駅裏に保線用の小屋。夕方から夜へ時間が進み、霧が濃くなる。\n\n# 真相（プレイヤーには直接明かさない）\n園田ケイは駅に住み着いた元同僚・久保（くぼ）の存在に気づいた。久保は廃線後に職を失い、駅務室の床下に隠れて暮らしている。ケイは久保を追ってトンネルへ入り、崩落で足を挫いてトンネル内の保守用退避所に閉じ込められている（生存、脱水気味）。缶コーヒーは久保が置いたもの（ケイの帰りを待っている）。久保は敵ではなく、怯えているだけ。乱暴に扱うと逃げる。\n\n# 手がかり（判定の目安）\n- 待合室: 缶コーヒーの温かさ→誰かがまだ駅にいる（observe 通常）。ベンチ下に最近の足跡（sense 通常）。\n- 駅務室: 床板の一部がずれている。床下に寝床と食料（observe 困難、または床板に気づけば自動）。日誌にケイの走り書き「トンネル奥、人の声？」（trivia または observe 通常）。\n- 倉庫: 保線用ヘッドランプとロープ（organize 通常で整理された棚から見つかる）。\n- トンネル柵: 切断跡は新しい（mechanics 通常で工具の種類が分かる）。\n- トンネル内: 100m ほどで崩落。崩落の向こうから弱い声（sense 通常）。瓦礫を安全にどける（mechanics 困難）か、上を登って越える（climb 通常、失敗で HP -2）。\n- 久保: 夜になると床下から出てくる。命令口調だと逃げる（command 困難）。優しく話すと自動で協力し、退避所への近道（保線小屋からの側道）を教える。\n\n# 危険\n- 暗闇での移動: ヘッドランプなしなら dodge 通常、失敗で HP -1。\n- 崩落を無理に崩す: mechanics に失敗すると二次崩落、その場の全員 dodge 通常、失敗で HP -3。\n- 恐怖: 床下から人が出てくる場面、トンネル内で声を聞く場面では SP -1（modify_resource）。\n\n# 終了条件\n- 成功: ケイを退避所から連れ出す（end_session \"rescued\"）。\n- 部分成功: ケイの居場所を突き止めて救助を呼ぶ（end_session \"called_rescue\"）。\n- 失敗: PC 全員の HP が 0、または夜が明けるまでに見つけられない（end_session \"failed\"）。\n\n# 進行のコツ\n最初は待合室から。プレイヤーが詰まったら久保の物音（床下からのきしみ）で誘導する。",
+  "images": []
+}
