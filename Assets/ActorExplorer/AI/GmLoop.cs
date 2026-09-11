@@ -16,6 +16,15 @@ namespace ActorExplorer
         public List<Actor> actors = new List<Actor>();
         public List<ChatMessage> messages = new List<ChatMessage>();
         public bool ended;
+
+        public static string Path => System.IO.Path.Combine(Application.persistentDataPath, "actorexplorer", "save.json");
+        public static bool Exists => System.IO.File.Exists(Path);
+        public void Save()
+        {
+            System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(Path));
+            System.IO.File.WriteAllText(Path, JsonUtility.ToJson(this, true));
+        }
+        public static SaveData Load() => JsonUtility.FromJson<SaveData>(System.IO.File.ReadAllText(Path));
     }
 
     [Serializable] class CheckArgs { public string actor; public string skill; public string difficulty; }

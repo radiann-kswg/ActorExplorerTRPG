@@ -1,0 +1,96 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+  <Style src="Main.uss" />
+  <ui:VisualElement name="root" class="root">
+
+    <!-- タイトル -->
+    <ui:VisualElement name="title" class="screen center">
+      <ui:Label name="title-label" class="h1" />
+      <ui:Button name="title-new" class="menu-btn" />
+      <ui:Button name="title-continue" class="menu-btn" />
+      <ui:Button name="title-settings" class="menu-btn" />
+      <ui:Button name="title-quit" class="menu-btn" />
+    </ui:VisualElement>
+
+    <!-- 設定 -->
+    <ui:VisualElement name="settings" class="screen">
+      <ui:Label name="settings-title" class="h1" />
+      <ui:DropdownField name="settings-provider" />
+      <ui:TextField name="settings-baseUrl" />
+      <ui:TextField name="settings-model" />
+      <ui:TextField name="settings-apiKey" password="true" />
+      <ui:DropdownField name="settings-language" />
+      <ui:IntegerField name="settings-historyLimit" />
+      <ui:FloatField name="settings-typeSpeed" />
+      <ui:Button name="settings-back" class="menu-btn" />
+    </ui:VisualElement>
+
+    <!-- キャラ作成 -->
+    <ui:VisualElement name="chargen" class="screen">
+      <ui:VisualElement class="row vcenter">
+        <ui:Label name="chargen-title" class="h1 grow" />
+        <ui:DropdownField name="chargen-scenario" class="wide" />
+      </ui:VisualElement>
+      <ui:VisualElement class="row grow">
+        <ui:VisualElement class="col side">
+          <ui:ScrollView name="chargen-actors" class="grow" />
+          <ui:Button name="chargen-add" />
+          <ui:Button name="chargen-remove" />
+        </ui:VisualElement>
+        <ui:ScrollView name="chargen-sheet" class="col grow">
+          <ui:TextField name="chargen-name" />
+          <ui:Button name="chargen-random" />
+          <ui:Label name="chargen-stats-label" class="h2" />
+          <ui:VisualElement name="chargen-stats" class="grid" />
+          <ui:Label name="chargen-resources-label" class="h2" />
+          <ui:VisualElement name="chargen-resources" class="grid" />
+          <ui:Label name="chargen-skills-label" class="h2" />
+          <ui:Label name="chargen-budget" class="muted" />
+          <ui:VisualElement name="chargen-skills" class="grid" />
+        </ui:ScrollView>
+      </ui:VisualElement>
+      <ui:VisualElement class="row vcenter">
+        <ui:Button name="chargen-back" />
+        <ui:VisualElement class="grow" />
+        <ui:Button name="chargen-start" class="primary" />
+      </ui:VisualElement>
+    </ui:VisualElement>
+
+    <!-- プレイ -->
+    <ui:VisualElement name="play" class="screen">
+      <ui:VisualElement name="play-stage" class="stage">
+        <ui:VisualElement name="play-background" class="background" />
+        <ui:VisualElement class="portraits">
+          <ui:VisualElement name="play-portrait-0" class="portrait" />
+          <ui:VisualElement name="play-portrait-1" class="portrait" />
+          <ui:VisualElement name="play-portrait-2" class="portrait" />
+        </ui:VisualElement>
+      </ui:VisualElement>
+      <ui:VisualElement class="row grow">
+        <ui:VisualElement class="col grow">
+          <ui:ScrollView name="play-log" class="log grow" />
+          <ui:Label name="play-status" class="muted" />
+          <ui:VisualElement class="row vcenter">
+            <ui:DropdownField name="play-actor" class="actor-dd" />
+            <ui:TextField name="play-input" class="grow" multiline="true" />
+            <ui:Button name="play-send" class="primary" />
+          </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="col side">
+          <ui:ScrollView name="play-sheet" class="grow" />
+          <ui:Button name="play-save" />
+          <ui:Button name="play-title" />
+        </ui:VisualElement>
+      </ui:VisualElement>
+      <ui:VisualElement name="play-diff" class="modal">
+        <ui:VisualElement class="modal-box">
+          <ui:Label name="play-diff-title" class="h2" />
+          <ui:Button name="play-diff-Normal" />
+          <ui:Button name="play-diff-Hard" />
+          <ui:Button name="play-diff-Extreme" />
+          <ui:Button name="play-diff-cancel" />
+        </ui:VisualElement>
+      </ui:VisualElement>
+    </ui:VisualElement>
+
+  </ui:VisualElement>
+</ui:UXML>
