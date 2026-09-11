@@ -6,7 +6,8 @@ using UnityEngine;
 
 namespace ActorExplorer
 {
-    [Serializable] public class StatDef { public string id; public string gen; }
+    /// desc は能力値判定（request_check に能力値 ID を渡す）の用途説明（任意）。
+    [Serializable] public class StatDef { public string id; public string gen; public LocText desc = new LocText(); }
     [Serializable] public class ResourceDef { public string id; public string max; }
     /// desc は AI が「行動→技能」を引くための短い説明（任意）。表示名は strings.json 側。
     [Serializable] public class SkillDef { public string id; public string init; public LocText desc = new LocText(); }

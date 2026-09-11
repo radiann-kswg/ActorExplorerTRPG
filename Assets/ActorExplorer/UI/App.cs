@@ -51,7 +51,7 @@ namespace ActorExplorer
             T("chargen-title", "chargen.title"); T("chargen-scenario-label", "chargen.scenario"); T("chargen-name", "chargen.name"); T("chargen-random", "chargen.random"); T("chargen-profile", "chargen.profile"); T("chargen-add", "chargen.add"); T("chargen-remove", "chargen.remove");
             T("chargen-stats-label", "chargen.stats"); T("chargen-skills-label", "chargen.skills"); T("chargen-resources-label", "chargen.resources"); T("chargen-start", "chargen.start"); T("chargen-back", "chargen.back");
             T("play-send", "play.send"); T("play-save", "play.save"); T("play-title", "play.title"); T("play-diff-title", "play.difficulty"); T("play-diff-cancel", "settings.back");
-            T("play-logbtn", "play.log"); T("play-sheetbtn", "play.sheet"); T("play-log-title", "play.log"); T("play-sheet-title", "play.sheet"); T("play-log-hint", "play.overlayHint"); T("play-sheet-hint", "play.sheetHint");
+            T("play-logbtn", "play.log"); T("play-sheetbtn", "play.sheet"); T("play-log-title", "play.log"); T("play-sheet-title", "play.sheet"); T("play-log-hint", "play.overlayHint"); T("play-sheet-hint", "play.sheetHint"); T("play-sheet-stats-label", "chargen.stats"); T("play-sheet-skills-label", "chargen.skills");
             foreach (var d in new[] { "Normal", "Hard", "Extreme" }) T("play-diff-" + d, "diff." + d);
         }
 
@@ -281,13 +281,21 @@ namespace ActorExplorer
             foreach (var s in rs.skills)
             {
                 string id = s.id;
-                var b = new Button(() => OpenDifficulty(a, id)) { text = $"{Strings.Skill(id)}  {a.Skill(id)}" };
+                var b = new Button(() => OpenDifficulty(a, id, false)) { text = $"{Strings.Skill(id)}  {a.Skill(id)}" };
                 b.AddToClassList("skill-btn");
                 sheet.Add(b);
             }
+            var stats = root.Q("play-sheet-stats"); stats.Clear();
+            foreach (var s in rs.stats)
+            {
+                string id = s.id;
+                var b = new Button(() => OpenDifficulty(a, id, true)) { text = $"{Strings.Stat(id)}  {a.Stat(id)}" };
+                b.AddToClassList("skill-btn");
+                stats.Add(b);
+            }
         }
 
-        void OpenDifficulty(Actor a, string skill)
+        void OpenDifficulty(Actor a, string skill, bool isStat)
         {
             var modal = root.Q("play-diff");
             modal.style.display = DisplayStyle.Flex;
@@ -297,7 +305,7 @@ namespace ActorExplorer
                 b.clickable = new Clickable(() =>
                 {
                     CloseOverlays();
-                    var ev = GmEvent.Check(a.name, skill, d, Check.Roll(rs.check, a.Skill(skill), d), manual: true);
+                    var ev = GmEvent.Check(a.name, skill, d, Check.Roll(rs.check, isStat ? a.Stat(skill) : a.Skill(skill), d), manual: true, isStat: isStat);
                     LogEvent(ev);
                     pendingChecks += ev + "\n";
                 });
@@ -321,7 +329,7 @@ namespace ActorExplorer
             switch (e.kind)
             {
                 case "check":
-                    head = Strings.F(e.manual ? "ev.checkManual" : "ev.check", e.actor, Strings.Skill(e.id), Strings.T("diff." + e.difficulty));
+                    head = Strings.F(e.manual ? "ev.checkManual" : "ev.check", e.actor, e.isStat ? Strings.Stat(e.id) : Strings.Skill(e.id), Strings.T("diff." + e.difficulty));
                     roll = Strings.F("ev.roll", e.result.roll, e.result.target);
                     outText = Strings.F("ev.result", Strings.T("out." + e.result.outcome));
                     outCls = "ev-out-" + e.result.outcome;

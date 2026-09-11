@@ -1,14 +1,14 @@
 {
   "id": "sample-d100",
   "stats": [
-    { "id": "STR", "gen": "3d6*5" },
-    { "id": "CON", "gen": "3d6*5" },
-    { "id": "DEX", "gen": "3d6*5" },
-    { "id": "APP", "gen": "3d6*5" },
-    { "id": "POW", "gen": "3d6*5" },
-    { "id": "SIZ", "gen": "(2d6+6)*5" },
-    { "id": "INT", "gen": "(2d6+6)*5" },
-    { "id": "EDU", "gen": "(2d6+6)*5" }
+    { "id": "STR", "gen": "3d6*5", "desc": { "ja": "力比べ・重い物を持ち上げる・押し開ける", "en": "Contests of strength, lifting, forcing" } },
+    { "id": "CON", "gen": "3d6*5", "desc": { "ja": "長時間の我慢・寒さや疲労に耐える", "en": "Endure hardship, cold, fatigue, long effort" } },
+    { "id": "DEX", "gen": "3d6*5", "desc": { "ja": "とっさの反射・器用さ・バランス", "en": "Reflexes, sleight of hand, balance" } },
+    { "id": "APP", "gen": "3d6*5", "desc": { "ja": "第一印象・見た目の好感・注目を集める", "en": "First impressions, charm at a glance" } },
+    { "id": "POW", "gen": "3d6*5", "desc": { "ja": "精神力・意志の強さ・恐怖や誘惑に耐える", "en": "Willpower, resisting fear or temptation" } },
+    { "id": "SIZ", "gen": "(2d6+6)*5", "desc": { "ja": "体の大きさが有利・不利になる場面（通常は判定しない）", "en": "Body size matters (rarely rolled)" } },
+    { "id": "INT", "gen": "(2d6+6)*5", "desc": { "ja": "ひらめき・見落としに気づく・状況の推理", "en": "Flash of insight, noticing an overlooked point, deduction" } },
+    { "id": "EDU", "gen": "(2d6+6)*5", "desc": { "ja": "学校で習う知識を思い出す・専門技能に該当しない知識", "en": "Recalling schooling, general learned knowledge" } }
   ],
   "resources": [
     { "id": "HP", "max": "(STR+SIZ)/10" },

@@ -131,6 +131,9 @@
           <ui:Label name="play-sheet-hint" class="muted" />
         </ui:VisualElement>
         <ui:ScrollView name="play-sheet" class="grow" mode="Vertical" horizontal-scroller-visibility="Hidden">
+          <ui:Label name="play-sheet-stats-label" class="h2" />
+          <ui:VisualElement name="play-sheet-stats" class="grid" />
+          <ui:Label name="play-sheet-skills-label" class="h2" />
           <ui:VisualElement name="play-sheet-grid" class="grid" />
         </ui:ScrollView>
       </ui:VisualElement>

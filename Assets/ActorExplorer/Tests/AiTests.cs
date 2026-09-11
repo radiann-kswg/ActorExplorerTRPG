@@ -96,10 +96,24 @@ namespace ActorExplorer.Tests
             StringAssert.Contains("STR — 物理", p);
             StringAssert.Contains("HP — 耐久力", p);
             StringAssert.Contains("Do NOT roll for routine", p);
-            StringAssert.Contains("never changes the facts", p);
+            StringAssert.Contains("NEVER changes the facts", p);
             string t = gm.ToolsJson();
             StringAssert.Contains("organize — 整理整頓", t);
             StringAssert.Contains("\"skillName\":\"観察\"", gm.RunTool("request_check", "{\"actor\":\"Alex\",\"skill\":\"observe\",\"difficulty\":\"normal\"}"));
+        }
+
+        [Test] public void StatChecksRollTheRawAttribute()
+        {
+            var gm = Make();
+            var events = new List<GmEvent>();
+            gm.OnEvent += events.Add;
+            string r = gm.RunTool("request_check", "{\"actor\":\"Alex\",\"skill\":\"STR\",\"difficulty\":\"normal\"}");
+            StringAssert.Contains("\"target\":" + gm.State.actors[0].Stat("STR"), r);
+            StringAssert.Contains("\"skillName\":\"物理\"", r);
+            Assert.IsTrue(events[0].isStat);
+            StringAssert.Contains("STR — 物理 — 力比べ", gm.BuildSystemPrompt());
+            StringAssert.Contains("\"STR\"", gm.ToolsJson());
+            StringAssert.Contains("error", gm.RunTool("request_check", "{\"actor\":\"Alex\",\"skill\":\"XYZ\",\"difficulty\":\"normal\"}"));
         }
 
         [Test] public void PromptFollowsSessionLanguage()

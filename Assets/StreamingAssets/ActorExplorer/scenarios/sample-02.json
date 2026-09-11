@@ -1,0 +1,14 @@
+{
+  "id": "sample-02",
+  "title": { "ja": "一日店長、閉店まで", "en": "Manager for a Day" },
+  "summary": {
+    "ja": "商店街の小さな喫茶店を一日だけ任される、探索なしの日常・人間関係シナリオ。開店から閉店までの 1 日。戦闘なし。1〜1.5 時間。",
+    "en": "A slice-of-life scenario with no exploration: run a small café in a shopping street for one day, from opening to closing. No combat. 1-1.5 hours."
+  },
+  "openingText": {
+    "ja": "朝八時。商店街のはずれにある喫茶「ことり」の鍵を、あなたたちは店主の南（みなみ）から預かった。南は今日、娘の結婚式で一日いない。「常連さんが来るから、いつも通りにしてくれれば大丈夫。あ、それと午後に大家さんが来るかも。よろしくね」——そう言い残して、南はタクシーに乗って行ってしまった。カウンターの上には、走り書きのメモと、豆の袋と、少し古いレジがある。",
+    "en": "Eight in the morning. Minami, the owner of the tiny café Kotori at the edge of the shopping street, has handed you the keys. She is away all day at her daughter's wedding. \"The regulars will come by; just keep things as usual. Oh, and the landlord might drop in this afternoon. Thanks!\" - and off she went in a taxi. On the counter: a scribbled note, a bag of beans, and a slightly old cash register."
+  },
+  "gmNotes": "# 舞台\n喫茶「ことり」: カウンター 6 席、テーブル 2 卓。厨房は狭い。レジは古く、たまに引き出しが開かない（mechanics 通常、または STR 通常で開く）。南のメモ: 「モーニングはトースト＋ゆで卵。豆は棚の右から二番目。午後、大家の黒田さんが来たら封筒を渡して」。封筒はレジの下（organize 通常で自然に見つかる。見つからなくても黒田が来たときに言われて気づく）。\n\n# この日の流れ（時間帯ごとのイベント。順番は前後してよい）\n- 朝 8〜10 時: 常連の老人・宮田（毎朝モーニング。今日は元気がない。sense 通常で「妻の命日」と気づける。気づいて一言添えると宮田は上機嫌になり、昼に知人を連れて戻ってくる＝売上増）。\n- 10 時ごろ: 豆が思ったより少ない。棚の奥に予備があるが分かりにくい（organize 通常）。見つからなければ昼までに買い出し（drive 通常か、近くの豆屋まで走る CON 通常）。\n- 昼 12〜14 時: 昼の混雑。注文を捌く（command 通常＝仕切り。失敗すると順番を間違えて 1 人が怒って帰る。事実は変わらない＝客が減るだけ）。学生 2 人組が長居してノートを広げる。試験勉強で、雑学 trivia 通常に成功すると話題が合って常連候補になる。\n- 14 時ごろ: 大家の黒田が来る。用件は家賃の封筒を受け取ること。だが本音は「この店を来年建て替えで立ち退かせたい」。黒田は無愛想だが悪人ではない。APP 通常で第一印象が良ければ本音を漏らす。command 通常（交渉）に成功すれば「南さんと改めて話す」と態度が軟化。失敗しても事実は変わらない（黒田はそのまま帰るだけ。南に伝えるかどうかはプレイヤー次第）。\n- 15〜17 時: 小学生が一人で来て、「お母さんが来るまで待たせて」と言う。母親は 17 時過ぎに来る（連絡先はランドセルの名札。observe 通常）。優しくすれば自動で懐く。\n- 17 時以降: 閉店作業。レジ締め（decode 通常。失敗すると数百円合わないだけ。事実は変わらない）。\n\n# 判定の目安\n日常動作（コーヒーを淹れる、掃除、会計）は判定しない。判定するのは「気づけるか」「うまく捌けるか」「相手の本音を引き出せるか」だけ。難易度は基本 normal。\n\n# リソース\n- 昼の混雑をさばくと MP -1（疲労）。黒田との交渉で失敗して落ち込むと SP -1。宮田の話に付き合うと LP +1（幸福度は上がってよい）。\n\n# 終了条件\n- 大成功: 閉店まで乗り切り、黒田の本音を聞き出して南に伝えられる状態（end_session \"great_day\"）。\n- 成功: 閉店まで乗り切る（end_session \"closed_up\"）。\n- 失敗: 店を途中で閉める、客とのトラブルで警察を呼ぶ事態（end_session \"gave_up\"）。\n\n# 進行のコツ\n時計を進めながら、1 つの時間帯に 1 つの出来事だけ置く。プレイヤーが何もしない時間は「客が来て、注文して、帰る」で流してよい。",
+  "images": []
+}

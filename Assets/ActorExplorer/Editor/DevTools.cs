@@ -33,16 +33,18 @@ namespace ActorExplorer.Editor
         static async void Run()
         {
             if (string.IsNullOrEmpty(Settings.ApiKey)) { Debug.LogError("[smoke] API key が未設定。Tools > ActorExplorer > Settings で入力してください"); return; }
+            // EditorPrefs "ae.smoke.scenario" / "ae.smoke.actions"（改行区切り）で差し替え可。既定は sample-01。
+            string scenario = EditorPrefs.GetString("ae.smoke.scenario", "sample-01");
+            string[] actions = EditorPrefs.GetString("ae.smoke.actions", "[Alex] 待合室を隅々まで調べる。缶コーヒーにも触ってみる。\n[Alex] 倉庫へ行って、棚を整理整頓しながら使えそうな道具を探す。").Split('\n');
             var rs = Ruleset.Load("sample-d100");
             var pc = Actor.CreateRandom(rs, "Alex", SkillProfile.Generalist);
-            var gm = GmLoop.New("sample-d100", "sample-01", new[] { pc }, Settings.Language);
+            var gm = GmLoop.New("sample-d100", scenario, new[] { pc }, Settings.Language);
             gm.OnEvent += e => Debug.Log("[smoke:event] " + e);
             try
             {
                 Debug.Log($"[smoke] {Settings.Provider} {Settings.Model} @ {Settings.BaseUrl}");
                 Debug.Log("[smoke:gm] " + await gm.Step(""));
-                Debug.Log("[smoke:gm] " + await gm.Step("[Alex] 待合室を隅々まで調べる。缶コーヒーにも触ってみる。"));
-                Debug.Log("[smoke:gm] " + await gm.Step("[Alex] 倉庫へ行って、棚を整理整頓しながら使えそうな道具を探す。"));
+                foreach (var a in actions) if (!string.IsNullOrWhiteSpace(a)) Debug.Log("[smoke:gm] " + await gm.Step(a.Trim()));
                 Debug.Log("[smoke] skills used: " + string.Join(", ", gm.State.messages.Where(m => m.role == "tool" && m.content.Contains("\"skill\"")).Select(m => m.content)));
                 Debug.Log($"[smoke] done. messages={gm.State.messages.Count} toolCalls={gm.State.messages.Count(m => m.role == "tool")} HP={pc.Resource("HP").value}/{pc.Resource("HP").max}");
             }
