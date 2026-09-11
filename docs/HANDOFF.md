@@ -2,7 +2,7 @@
 
 次のセッション以降で作業する人（人間でもエージェントでも）が、このファイルと `docs/REQUIREMENTS.md` だけ読めば続きに入れることを目的にする。仕様の正本は `docs/REQUIREMENTS.md`、ここは「現状」「初回プレイで見つかった改善点」「次にやる順番」。
 
-## 1. 現状（MVP 完了・`develop`・未 push）
+## 1. 現状（MVP 完了・`develop`・push 済み）
 
 | コミット | 内容 |
 | --- | --- |
@@ -77,7 +77,7 @@ Assets/StreamingAssets/ActorExplorer/  rulesets/sample-d100.json  scenarios/samp
 
 ## 4. 運用メモ（次セッションで踏まないために）
 
-- Unity の操作は unity-mcp 経由。**`com.unity.ai.assistant` を manifest から外さない**（MCP リレーの本体）。
+- Unity の操作は Unity MCP 経由（Windows の Claude は純正 `com.unity.ai.assistant`、Mac の Claude と Windows の Codex は CoplayDev `com.coplaydev.unity-mcp`）。**どちらも manifest から外さない**。
 - git はサンドボックスから書かず `GitTools.RunGit` / `CommitAll`（Unity 側）。
 - UXML/USS は Play 中に変えても反映されない。Stop → `AssetDatabase.ImportAsset(..., ForceUpdate)` → Play。
 - UI の自動操作は `root.Q<Button>(name).SendEvent(new NavigationSubmitEvent{target=b})`、画面確認は `ScreenCapture.CaptureScreenshot` を `EditorApplication.delayCall` 2 段で。API を叩かずに見た目だけ確認するなら Play 中に `Tools > ActorExplorer > UI Preview (Play mode)`。

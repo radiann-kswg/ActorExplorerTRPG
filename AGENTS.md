@@ -11,7 +11,7 @@ AI エージェント向けの設定の単一情報源（SSOT）。`CLAUDE.md` �
 ## 2. ブランチと git
 
 - 作業は `develop`。`main` へのマージ・push は User の指示があるときだけ。
-- Cowork（Linux サンドボックス）からは git を書かない。Unity エディタ経由で `Tools > Git Commit All` または `Unity_RunCommand` → `GitTools.RunGit("...")` / `GitTools.CommitAll()`（`Assets/ActorExplorer/Editor/GitTools.cs`）。
+- Cowork（Linux サンドボックス）からは git を書かない。Unity エディタ経由で `Tools > Git Commit All` または Unity MCP のコード実行（純正 `Unity_RunCommand` / CoplayDev `execute_code`）→ `GitTools.RunGit("...")` / `GitTools.CommitAll()`（`Assets/ActorExplorer/Editor/GitTools.cs`）。
 - `Library/` `Temp/` `Logs/` `obj/` `UserSettings/` `*.csproj` `*.sln*` は編集・コミット対象外（`.gitignore` 済み）。`.meta` は Unity に任せる。
 
 ## 3. 構成
@@ -29,7 +29,7 @@ AI エージェント向けの設定の単一情報源（SSOT）。`CLAUDE.md` �
 - LLM は OpenAI 互換 `chat/completions` を 1 クラスで叩く。プロバイダごとのクラスや抽象化を増やさない。非ストリーミング。
 - シリアライズは `JsonUtility` の範囲に収める（Dictionary は key/value 配列）。外部 JSON ライブラリを足さない。
 - 依存パッケージを増やさない。標準ライブラリ → Unity 標準機能 → 既存パッケージの順で探す。パッケージを外すときは `Packages/packages-lock.json` で何を提供しているか確かめてから。
-- `com.unity.ai.assistant` は **開発用の依存**（Unity MCP のリレー `Unity.AI.MCP.Editor` を含む。外すと Cowork からの Unity 操作が止まる）。`com.unity.recorder` はデバッグ録画用。ランタイムはどちらにも依存しない。AI 機能を使わないフォーク先では外して構わない。
+- `com.unity.ai.assistant` は **開発用の依存**（Unity MCP のリレー `Unity.AI.MCP.Editor` を含む。外すと Cowork からの Unity 操作が止まる）。`com.coplaydev.unity-mcp` も**開発用の依存**（CoplayDev 版 MCP のブリッジ。Windows の Claude は純正、Mac の Claude と Windows の Codex は CoplayDev を使い、同時接続数を分ける）。`com.unity.recorder` はデバッグ録画用。ランタイムはどちらにも依存しない。AI 機能を使わないフォーク先ではどちらも外して構わない。
 - 段階拡張（画像切替 `set_scene`、所持品、技能予算の強制）は `docs/REQUIREMENTS.md` §8 に従い、基本動線が安定してから。
 
 ## 5. ロールプレイ

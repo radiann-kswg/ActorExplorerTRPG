@@ -139,7 +139,7 @@ Assets/StreamingAssets/ActorExplorer/  rulesets/  scenarios/  strings.json
 docs/REQUIREMENTS.md  AGENTS.md  CLAUDE.md  LICENSE(MIT, RadianN_kswg)  README.md
 ```
 
-manifest から除外: `com.unity.ai.inference` `com.unity.visualscripting` `com.unity.timeline` `com.unity.multiplayer.center` `com.unity.collab-proxy` `com.unity.pipeline`。`com.unity.ai.assistant` は当初除外予定だったが **Unity MCP のリレー（`Unity.AI.MCP.Editor`）を含む**ため開発用依存として残す（2026-09-11 に外して Cowork 接続が落ちたのを確認）。`com.unity.recorder` はデバッグ録画用。ランタイムはどちらにも依存しない。
+manifest から除外: `com.unity.ai.inference` `com.unity.visualscripting` `com.unity.timeline` `com.unity.multiplayer.center` `com.unity.collab-proxy` `com.unity.pipeline`。`com.unity.ai.assistant` は当初除外予定だったが **Unity MCP のリレー（`Unity.AI.MCP.Editor`）を含む**ため開発用依存として残す（2026-09-11 に外して Cowork 接続が落ちたのを確認）。`com.coplaydev.unity-mcp` も同じく開発用依存（Mac の Claude・Windows の Codex 用 MCP ブリッジ、2026-09-11 追加）。`com.unity.recorder` はデバッグ録画用。ランタイムはどちらにも依存しない。
 
 ## 8. 段階拡張（MVP 後・順不同）
 
