@@ -4,7 +4,7 @@
 
     <!-- タイトル -->
     <ui:VisualElement name="title" class="screen center">
-      <ui:Label name="title-label" class="h1" />
+      <ui:Label name="title-label" class="h1 title-logo hud" />
       <ui:Button name="title-new" class="menu-btn" />
       <ui:Button name="title-continue" class="menu-btn" />
       <ui:Button name="title-settings" class="menu-btn" />
@@ -13,21 +13,29 @@
 
     <!-- 設定 -->
     <ui:VisualElement name="settings" class="screen">
-      <ui:Label name="settings-title" class="h1" />
-      <ui:DropdownField name="settings-provider" />
-      <ui:TextField name="settings-baseUrl" />
-      <ui:TextField name="settings-model" />
-      <ui:TextField name="settings-apiKey" password="true" />
-      <ui:DropdownField name="settings-language" />
-      <ui:IntegerField name="settings-historyLimit" />
-      <ui:FloatField name="settings-typeSpeed" />
-      <ui:Button name="settings-back" class="menu-btn" />
+      <ui:VisualElement class="row vcenter">
+        <ui:Label name="settings-title" class="plate" />
+      </ui:VisualElement>
+      <ui:VisualElement class="frame settings-box">
+        <ui:DropdownField name="settings-provider" />
+        <ui:TextField name="settings-baseUrl" />
+        <ui:TextField name="settings-model" />
+        <ui:TextField name="settings-apiKey" password="true" />
+        <ui:DropdownField name="settings-language" />
+        <ui:IntegerField name="settings-historyLimit" />
+        <ui:FloatField name="settings-typeSpeed" />
+      </ui:VisualElement>
+      <ui:VisualElement class="row vcenter">
+        <ui:Button name="settings-back" />
+      </ui:VisualElement>
     </ui:VisualElement>
 
     <!-- キャラ作成 -->
     <ui:VisualElement name="chargen" class="screen">
       <ui:VisualElement class="row vcenter">
-        <ui:Label name="chargen-title" class="h1 grow" />
+        <ui:Label name="chargen-title" class="plate" />
+        <ui:VisualElement class="grow" />
+        <ui:Label name="chargen-scenario-label" class="muted" />
         <ui:DropdownField name="chargen-scenario" class="wide" />
       </ui:VisualElement>
       <ui:VisualElement class="row grow">
@@ -36,20 +44,22 @@
           <ui:Button name="chargen-add" />
           <ui:Button name="chargen-remove" />
         </ui:VisualElement>
-        <ui:ScrollView name="chargen-sheet" class="col grow" mode="Vertical" horizontal-scroller-visibility="Hidden">
-          <ui:TextField name="chargen-name" />
+        <ui:VisualElement name="chargen-sheet" class="col grow frame">
           <ui:VisualElement class="row vcenter">
+            <ui:TextField name="chargen-name" class="grow" />
             <ui:Button name="chargen-random" />
-            <ui:DropdownField name="chargen-profile" class="grow" />
+            <ui:DropdownField name="chargen-profile" class="wide" />
           </ui:VisualElement>
           <ui:Label name="chargen-stats-label" class="h2" />
           <ui:VisualElement name="chargen-stats" class="grid" />
           <ui:Label name="chargen-resources-label" class="h2" />
-          <ui:VisualElement name="chargen-resources" class="grid" />
-          <ui:Label name="chargen-skills-label" class="h2" />
-          <ui:Label name="chargen-budget" class="muted" />
+          <ui:VisualElement name="chargen-resources" class="row res-row" />
+          <ui:VisualElement class="row vbase">
+            <ui:Label name="chargen-skills-label" class="h2" />
+            <ui:Label name="chargen-budget" class="muted budget" />
+          </ui:VisualElement>
           <ui:VisualElement name="chargen-skills" class="grid" />
-        </ui:ScrollView>
+        </ui:VisualElement>
       </ui:VisualElement>
       <ui:VisualElement class="row vcenter">
         <ui:Button name="chargen-back" />
@@ -59,33 +69,75 @@
     </ui:VisualElement>
 
     <!-- プレイ -->
-    <ui:VisualElement name="play" class="screen">
+    <ui:VisualElement name="play" class="screen play">
+      <!-- 舞台（全面）: 背景画像と立ち絵 3 枠は段階拡張用のスロット -->
       <ui:VisualElement name="play-stage" class="stage">
         <ui:VisualElement name="play-background" class="background" />
         <ui:VisualElement class="portraits">
           <ui:VisualElement name="play-portrait-0" class="portrait" />
-          <ui:VisualElement name="play-portrait-1" class="portrait" />
+          <ui:VisualElement name="play-portrait-1" class="portrait portrait-center" />
           <ui:VisualElement name="play-portrait-2" class="portrait" />
         </ui:VisualElement>
+        <ui:VisualElement class="stage-shade" />
       </ui:VisualElement>
-      <ui:VisualElement class="row grow">
-        <ui:VisualElement class="col grow">
-          <ui:ScrollView name="play-log" class="log grow" />
-          <ui:Label name="play-status" class="muted" />
-          <ui:VisualElement class="row vcenter">
-            <ui:DropdownField name="play-actor" class="actor-dd" />
-            <ui:TextField name="play-input" class="grow" multiline="true" />
-            <ui:Button name="play-send" class="primary" />
-          </ui:VisualElement>
-        </ui:VisualElement>
-        <ui:VisualElement class="col side">
-          <ui:ScrollView name="play-sheet" class="grow" />
-          <ui:Button name="play-save" />
-          <ui:Button name="play-title" />
+
+      <!-- 上帯: シナリオ名とリソース -->
+      <ui:VisualElement class="topbar">
+        <ui:Label name="play-scenario" class="tag" />
+        <ui:VisualElement class="grow" />
+        <ui:VisualElement name="play-res" class="row res-strip" />
+      </ui:VisualElement>
+
+      <!-- 判定カード（一時表示） -->
+      <ui:VisualElement name="play-check" class="check-card">
+        <ui:Label name="play-check-head" class="ev-head" />
+        <ui:Label name="play-check-roll" class="ev-roll hud" />
+        <ui:Label name="play-check-out" class="ev-out hud" />
+      </ui:VisualElement>
+
+      <!-- メッセージウィンドウ -->
+      <ui:VisualElement name="play-window" class="window">
+        <ui:Label name="play-speaker" class="plate speaker" />
+        <ui:Label name="play-msg" class="msg" />
+        <ui:Label name="play-status" class="muted status" />
+        <ui:VisualElement class="row window-menu">
+          <ui:Button name="play-logbtn" class="mini" />
+          <ui:Button name="play-sheetbtn" class="mini" />
+          <ui:Button name="play-save" class="mini" />
+          <ui:Button name="play-title" class="mini" />
         </ui:VisualElement>
       </ui:VisualElement>
+
+      <!-- 入力行 -->
+      <ui:VisualElement class="row inputbar">
+        <ui:DropdownField name="play-actor" class="actor-dd" />
+        <ui:TextField name="play-input" class="grow" multiline="true" />
+        <ui:Button name="play-send" class="primary" />
+      </ui:VisualElement>
+
+      <!-- ログ（バックログ）オーバーレイ -->
+      <ui:VisualElement name="play-log-panel" class="overlay">
+        <ui:VisualElement class="row vcenter overlay-head">
+          <ui:Label name="play-log-title" class="plate" />
+          <ui:Label name="play-log-hint" class="muted" />
+        </ui:VisualElement>
+        <ui:ScrollView name="play-log" class="log grow" mode="Vertical" horizontal-scroller-visibility="Hidden" />
+      </ui:VisualElement>
+
+      <!-- シート（手動判定）オーバーレイ -->
+      <ui:VisualElement name="play-sheet-panel" class="overlay">
+        <ui:VisualElement class="row vcenter overlay-head">
+          <ui:Label name="play-sheet-title" class="plate" />
+          <ui:Label name="play-sheet-hint" class="muted" />
+        </ui:VisualElement>
+        <ui:ScrollView name="play-sheet" class="grow" mode="Vertical" horizontal-scroller-visibility="Hidden">
+          <ui:VisualElement name="play-sheet-grid" class="grid" />
+        </ui:ScrollView>
+      </ui:VisualElement>
+
+      <!-- 難易度選択 -->
       <ui:VisualElement name="play-diff" class="modal">
-        <ui:VisualElement class="modal-box">
+        <ui:VisualElement class="modal-box frame">
           <ui:Label name="play-diff-title" class="h2" />
           <ui:Button name="play-diff-Normal" />
           <ui:Button name="play-diff-Hard" />

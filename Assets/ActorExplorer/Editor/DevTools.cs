@@ -62,17 +62,46 @@ namespace ActorExplorer.Editor
             if (app == null) { Debug.LogWarning("[ui-preview] App が見つかりません"); return; }
             var f = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
             var t = typeof(App);
-            var show = t.GetMethod("Show", f); var log = t.GetMethod("Log", f); var ev = t.GetMethod("LogEvent", f);
+            var show = t.GetMethod("Show", f); var log = t.GetMethod("Log", f); var ev = t.GetMethod("LogEvent", f); var win = t.GetMethod("SetWindow", f);
             var rule = new CheckRule();
             show.Invoke(app, new object[] { "play" });
-            log.Invoke(app, new object[] { "秋の夕方。三年前に廃線になった支線の終着駅「霧谷」に、あなたたちは立っている。待合室のベンチには、まだ温かい缶コーヒーが置かれている。", "log-gm", false });
-            log.Invoke(app, new object[] { "[アクター 1] 倉庫へ行って、棚を整理整頓しながら使えそうな道具を探す。", "log-player", false });
+            log.Invoke(app, new object[] { "秋の夕方。三年前に廃線になった支線の終着駅「霧谷」に、あなたたちは立っている。待合室のベンチには、まだ温かい缶コーヒーが置かれている。", "log-gm" });
+            log.Invoke(app, new object[] { "[アクター 1] 倉庫へ行って、棚を整理整頓しながら使えそうな道具を探す。", "log-player" });
             ev.Invoke(app, new object[] { GmEvent.Check("アクター 1", "organize", Difficulty.Normal, Check.Resolve(rule, 65, Difficulty.Normal, 42)) });
-            log.Invoke(app, new object[] { "棚は几帳面に整理されていて、保線用のヘッドランプとロープがすぐに見つかった。", "log-gm", false });
+            log.Invoke(app, new object[] { "棚は几帳面に整理されていて、保線用のヘッドランプとロープがすぐに見つかった。倉庫の奥、床板の隙間から、かすかにきしむ音がする。", "log-gm" });
+            win.Invoke(app, new object[] { "GM", "棚は几帳面に整理されていて、保線用のヘッドランプとロープがすぐに見つかった。倉庫の奥、床板の隙間から、かすかにきしむ音がする。" });
             ev.Invoke(app, new object[] { GmEvent.Check("アクター 1", "climb", Difficulty.Hard, Check.Resolve(rule, 40, Difficulty.Hard, 77), true) });
             ev.Invoke(app, new object[] { GmEvent.Resource("アクター 1", "HP", 13, 11, 13, "瓦礫で足を切った") });
             ev.Invoke(app, new object[] { GmEvent.Check("アクター 1", "sense", Difficulty.Normal, Check.Resolve(rule, 55, Difficulty.Normal, 1)) });
             Debug.Log("[ui-preview] done");
+        }
+    }
+
+    /// Tools > ActorExplorer > Fetch Fonts: 同梱フォントを配布元から取得して Assets/ActorExplorer/Fonts/ に置く（開発者用・初回のみ）。
+    /// ライセンス文は同フォルダの LICENSE.txt（リポジトリに同梱済み）。
+    public static class FontFetcher
+    {
+        static readonly (string url, string path)[] Files =
+        {
+            ("https://hicchicc.github.io/00ff/x12y16pxMaruMonica.ttf", "Assets/ActorExplorer/Fonts/MaruMonica/x12y16pxMaruMonica.ttf"),
+            ("https://hicchicc.github.io/00ff/x14y24pxHeadUpDaisy.ttf", "Assets/ActorExplorer/Fonts/HeadUpDaisy/x14y24pxHeadUpDaisy.ttf"),
+        };
+
+        [MenuItem("Tools/ActorExplorer/Fetch Fonts")]
+        static void Run()
+        {
+            using (var http = new System.Net.Http.HttpClient())
+            {
+                foreach (var (url, path) in Files)
+                {
+                    if (System.IO.File.Exists(path)) { Debug.Log($"[fonts] skip (exists): {path}"); continue; }
+                    System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
+                    var bytes = http.GetByteArrayAsync(url).GetAwaiter().GetResult();
+                    System.IO.File.WriteAllBytes(path, bytes);
+                    Debug.Log($"[fonts] {path} ({bytes.Length} bytes)");
+                }
+            }
+            AssetDatabase.Refresh();
         }
     }
 }

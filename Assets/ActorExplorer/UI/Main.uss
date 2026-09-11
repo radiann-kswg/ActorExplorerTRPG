@@ -1,45 +1,120 @@
-.root { flex-grow: 1; background-color: #14161c; color: #e6e6e6; font-size: 16px; }
-.screen { flex-grow: 1; padding: 16px; display: none; }
+/* ActorExplorerTRPG — 平成中期ノベルゲーム風。基準解像度 1280x720（PanelSettings）。
+   配色は 3 色: メイン #f2efe6（文字・枠）／サブ #0b0d12〜#171a22（地）／アクセント #ffd591（見出し・判定・強調）。
+   書体: 本文 x12y16pxMaruMonica、見出し・数値・判定結果 x14y24pxHeadUpDaisy（どちらも患者長ひっく）。
+   注意: UI Toolkit の USS は複合セレクタ .a.b が使えない。伸ばす要素は flex-basis:0; min-height:0。 */
+
+.root { flex-grow: 1; background-color: #14161c; color: #f2efe6; font-size: 20px;
+  -unity-font-definition: url("../Fonts/MaruMonica/x12y16pxMaruMonica.ttf"); }
+.screen { flex-grow: 1; padding: 24px 40px; display: none; }
 .center { align-items: center; justify-content: center; }
 .row { flex-direction: row; }
 .vcenter { align-items: center; }
+.vbase { align-items: flex-end; }
 .col { flex-direction: column; }
 .grow { flex-grow: 1; flex-shrink: 1; flex-basis: 0; min-height: 0; min-width: 0; }
-.side { width: 300px; flex-shrink: 0; margin-left: 12px; }
-.wide { width: 360px; }
-.h1 { font-size: 28px; -unity-font-style: bold; margin-bottom: 12px; }
-.h2 { font-size: 18px; -unity-font-style: bold; margin-top: 10px; margin-bottom: 4px; }
-.muted { color: #9aa0ad; }
-.menu-btn { width: 280px; height: 44px; margin: 6px; font-size: 18px; }
-.unity-button { color: #1a1a1a; }
-.unity-base-text-field__input, .unity-text-field__input, .unity-base-popup-field__text { color: #111; }
-.primary { background-color: #3b6ea8; color: white; }
+.side { width: 240px; flex-shrink: 0; margin-right: 20px; }
+.wide { width: 320px; flex-shrink: 0; }
+.muted { color: rgba(242, 239, 230, 0.65); }
+
+/* 見出し・プレート */
+.h1 { font-size: 32px; margin-bottom: 12px; }
+.h2 { font-size: 20px; color: #ffd591; margin-top: 8px; margin-bottom: 4px; padding-bottom: 2px;
+  border-bottom-width: 2px; border-bottom-color: rgba(255, 213, 145, 0.4); }
+.plate { background-color: #f2efe6; color: #0b0d12; font-size: 22px; padding: 4px 18px; letter-spacing: 2px; margin-right: 16px; }
+.tag { background-color: rgba(9, 11, 18, 0.72); border-width: 2px; border-color: #f2efe6; font-size: 20px; padding: 4px 14px; }
+.title-logo { font-size: 48px; margin-bottom: 40px; letter-spacing: 4px; }
+.hud { -unity-font-definition: url("../Fonts/HeadUpDaisy/x14y24pxHeadUpDaisy.ttf"); }
+
+/* 二重枠（半透明） */
+.frame { background-color: rgba(9, 11, 18, 0.78); border-width: 2px; border-color: #f2efe6; padding: 16px 20px; }
+.settings-box { width: 720px; margin-top: 16px; margin-bottom: 16px; }
+
+/* ボタン・入力欄（テーマの既定を上書き） */
+.unity-button { background-color: rgba(9, 11, 18, 0.82); color: #f2efe6; border-width: 2px; border-color: rgba(242, 239, 230, 0.6);
+  border-radius: 0; font-size: 20px; padding: 6px 16px; margin: 4px; }
+.unity-button:hover { background-color: rgba(242, 239, 230, 0.15); border-color: #f2efe6; }
+.unity-button:active { background-color: #f2efe6; color: #0b0d12; }
+.unity-button:disabled { color: rgba(242, 239, 230, 0.35); border-color: rgba(242, 239, 230, 0.25); }
+.primary { background-color: #f2efe6; color: #0b0d12; border-color: #f2efe6; letter-spacing: 2px; }
+.primary:hover { background-color: #ffffff; }
+.menu-btn { width: 320px; height: 52px; margin: 8px; font-size: 24px; }
+.mini { font-size: 16px; padding: 2px 12px; margin: 2px; border-color: rgba(242, 239, 230, 0.35); color: rgba(242, 239, 230, 0.7); }
+
+.unity-base-field { margin: 4px 0; }
+.unity-base-field__label { color: rgba(242, 239, 230, 0.7); font-size: 18px; min-width: 0; }
+#settings .unity-base-field__label { min-width: 240px; }
+.unity-base-text-field__input { background-color: rgba(9, 11, 18, 0.82); color: #f2efe6; border-width: 2px; border-color: rgba(242, 239, 230, 0.6); border-radius: 0; font-size: 20px; padding: 4px 10px; }
+.unity-base-text-field__input:focus { border-color: #ffd591; }
+.unity-base-popup-field__input { background-color: rgba(9, 11, 18, 0.82); color: #f2efe6; border-width: 2px; border-color: rgba(242, 239, 230, 0.6); border-radius: 0; font-size: 20px; padding: 4px 10px; }
+.unity-base-popup-field__text { color: #f2efe6; }
+.unity-base-popup-field__arrow { -unity-background-image-tint-color: #f2efe6; }
+.unity-scroller { width: 14px; }
+
+/* キャラ作成 */
 .grid { flex-direction: row; flex-wrap: wrap; }
-.grid > * { width: 150px; margin: 2px; }
-.grid .unity-base-field__label { min-width: 70px; width: 70px; }
-.grid .unity-base-text-field__input { min-width: 50px; }
-.stage { height: 200px; flex-shrink: 0; background-color: #0c0d11; border-radius: 6px; margin-bottom: 10px; }
+.grid > * { width: 180px; margin: 2px 6px; }
+.grid .unity-base-field__label { min-width: 90px; width: 90px; font-size: 18px; }
+.grid .unity-base-text-field__input { min-width: 60px; font-size: 22px; padding: 2px 6px; }
+.res-row > * { margin-right: 24px; font-size: 18px; color: #f2efe6; }
+.budget { margin-left: 16px; margin-bottom: 6px; }
+#chargen-name .unity-base-field__label { min-width: 80px; }
+#chargen-name { margin-right: 8px; }
+.actor-item { height: 44px; margin: 3px 0; -unity-text-align: middle-left; }
+.actor-item-selected { background-color: #f2efe6; color: #0b0d12; }
+
+/* プレイ画面 */
+.play { padding: 0; }
+.stage { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: #171a22; }
 .background { position: absolute; left: 0; top: 0; right: 0; bottom: 0; -unity-background-scale-mode: scale-and-crop; }
-.portraits { position: absolute; left: 0; right: 0; bottom: 0; height: 100%; flex-direction: row; justify-content: space-around; align-items: flex-end; }
-.portrait { width: 160px; height: 100%; -unity-background-scale-mode: scale-to-fit; }
-.log { background-color: #1c1f27; border-radius: 6px; padding: 8px; }
-.log-gm { white-space: normal; margin-bottom: 8px; }
-.log-player { white-space: normal; margin-bottom: 8px; color: #b9d4ff; }
-.log-event { margin-bottom: 8px; padding: 4px 8px; border-left-width: 3px; border-left-color: #ffd591; background-color: rgba(255, 213, 145, 0.08); }
-.log-event Label { white-space: normal; color: #ffd591; }
-.ev-head { -unity-font-style: bold; }
-.ev-roll { color: #e6e6e6; }
-.ev-out-Critical { color: #ffe066; -unity-font-style: bold; }
-.ev-out-Success { color: #9be27d; -unity-font-style: bold; }
-.ev-out-Failure { color: #ff9f9f; -unity-font-style: bold; }
-.ev-out-Fumble { color: #ff6b6b; -unity-font-style: bold; }
-.log-error { white-space: normal; margin-bottom: 8px; color: #ff8c8c; }
-.actor-dd { width: 160px; }
-#play-input { min-height: 60px; }
-.skill-btn { width: 100%; margin: 1px; -unity-text-align: middle-left; }
+.stage-shade { position: absolute; left: 0; right: 0; bottom: 0; height: 260px; background-color: rgba(0, 0, 0, 0.35); }
+.portraits { position: absolute; left: 0; right: 0; top: 96px; height: 460px; flex-direction: row; justify-content: center; align-items: flex-end; }
+.portrait { width: 220px; height: 400px; margin: 0 60px; -unity-background-scale-mode: scale-to-fit; }
+.portrait-center { width: 240px; height: 440px; }
+
+.topbar { position: absolute; left: 24px; right: 24px; top: 20px; flex-direction: row; align-items: center; }
+.res-strip > * { background-color: rgba(9, 11, 18, 0.72); border-width: 2px; border-color: #f2efe6; font-size: 18px; padding: 4px 12px; margin-left: 10px; }
+.res-item { flex-direction: row; align-items: center; }
+.res-name { font-size: 16px; color: rgba(242, 239, 230, 0.7); margin-right: 8px; }
+.res-val { font-size: 20px; color: #f2efe6; }
+
+.window { position: absolute; left: 40px; right: 40px; top: 466px; height: 196px; background-color: rgba(9, 11, 18, 0.82);
+  border-width: 2px; border-color: #f2efe6; }
+.speaker { position: absolute; left: 20px; top: -24px; font-size: 22px; padding: 2px 20px; }
+.msg { position: absolute; left: 32px; right: 32px; top: 20px; bottom: 26px; font-size: 22px; white-space: normal; overflow: hidden; }
+.status { position: absolute; left: 32px; bottom: 6px; font-size: 16px; }
+.window-menu { position: absolute; right: 8px; top: -26px; }
+.inputbar { position: absolute; left: 40px; right: 40px; top: 672px; height: 36px; align-items: stretch; }
+.actor-dd { width: 180px; margin: 0 8px 0 0; }
+#play-input { margin: 0; }
+#play-input .unity-base-text-field__input { font-size: 18px; padding: 2px 10px; }
+#play-send { margin: 0 0 0 8px; padding: 0 24px; }
+
+/* 判定カード */
+.check-card { position: absolute; left: 400px; top: 280px; width: 480px; display: none; background-color: rgba(9, 11, 18, 0.92);
+  border-width: 2px; border-color: #ffd591; padding: 12px 20px; }
+.check-card .ev-head { font-size: 22px; }
+.check-card .ev-roll { font-size: 32px; margin: 4px 0; }
+.check-card .ev-out { font-size: 30px; }
+
+/* ログ・シートのオーバーレイ */
+.overlay { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(5, 6, 10, 0.95); padding: 24px 40px; display: none; }
+.overlay-head { margin-bottom: 12px; }
+.log { border-width: 2px; border-color: rgba(242, 239, 230, 0.5); padding: 16px 24px; }
+.log-gm { white-space: normal; font-size: 22px; margin-bottom: 14px; }
+.log-player { white-space: normal; font-size: 22px; margin-bottom: 14px; color: rgba(242, 239, 230, 0.7); }
+.log-error { white-space: normal; margin-bottom: 14px; color: #ffd591; }
+.log-event { margin-bottom: 14px; padding: 6px 16px; border-left-width: 4px; border-left-color: #ffd591; background-color: rgba(255, 213, 145, 0.08); }
+.log-event Label { white-space: normal; font-size: 20px; }
+.ev-head { color: #ffd591; }
+.ev-roll { color: #f2efe6; }
+.ev-out-Critical { color: #ffd591; }
+.ev-out-Success { color: #ffd591; }
+.ev-out-Failure { color: rgba(242, 239, 230, 0.75); }
+.ev-out-Fumble { color: rgba(242, 239, 230, 0.75); }
+
+.skill-btn { width: 220px; margin: 3px; -unity-text-align: middle-left; font-size: 18px; }
 .res-label { margin: 2px; }
-.modal { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; display: none; }
-.modal-box { background-color: #23262f; padding: 16px; border-radius: 8px; width: 320px; }
-.modal-box > Button { height: 40px; margin: 4px; }
-.actor-item { height: 36px; margin: 2px; -unity-text-align: middle-left; }
-.actor-item-selected { background-color: #3b6ea8; color: white; }
+
+.modal { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6); align-items: center; justify-content: center; display: none; }
+.modal-box { width: 360px; }
+.modal-box > Button { height: 44px; margin: 4px 0; }

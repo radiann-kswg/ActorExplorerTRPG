@@ -20,9 +20,9 @@ namespace ActorExplorer
         string pendingChecks = "";
         bool busy;
 
-        // 文字送り
-        readonly Queue<(Label label, string text)> typeQueue = new Queue<(Label, string)>();
-        Label typing; string typingText; float typed;
+        // 文字送り（メッセージウィンドウ 1 枚に順番に流す）
+        readonly Queue<(string speaker, string text)> typeQueue = new Queue<(string, string)>();
+        string typingText; float typed; bool typing;
 
         static readonly string[] Screens = { "title", "settings", "chargen", "play" };
 
@@ -48,9 +48,10 @@ namespace ActorExplorer
             T("title-label", "app.title"); T("title-new", "title.new"); T("title-continue", "title.continue"); T("title-settings", "title.settings"); T("title-quit", "title.quit");
             T("settings-title", "settings.title"); T("settings-provider", "settings.provider"); T("settings-baseUrl", "settings.baseUrl"); T("settings-model", "settings.model");
             T("settings-apiKey", "settings.apiKey"); T("settings-language", "settings.language"); T("settings-historyLimit", "settings.historyLimit"); T("settings-typeSpeed", "settings.typeSpeed"); T("settings-back", "settings.back");
-            T("chargen-title", "chargen.title"); T("chargen-scenario", "chargen.scenario"); T("chargen-name", "chargen.name"); T("chargen-random", "chargen.random"); T("chargen-profile", "chargen.profile"); T("chargen-add", "chargen.add"); T("chargen-remove", "chargen.remove");
+            T("chargen-title", "chargen.title"); T("chargen-scenario-label", "chargen.scenario"); T("chargen-name", "chargen.name"); T("chargen-random", "chargen.random"); T("chargen-profile", "chargen.profile"); T("chargen-add", "chargen.add"); T("chargen-remove", "chargen.remove");
             T("chargen-stats-label", "chargen.stats"); T("chargen-skills-label", "chargen.skills"); T("chargen-resources-label", "chargen.resources"); T("chargen-start", "chargen.start"); T("chargen-back", "chargen.back");
             T("play-send", "play.send"); T("play-save", "play.save"); T("play-title", "play.title"); T("play-diff-title", "play.difficulty"); T("play-diff-cancel", "settings.back");
+            T("play-logbtn", "play.log"); T("play-sheetbtn", "play.sheet"); T("play-log-title", "play.log"); T("play-sheet-title", "play.sheet"); T("play-log-hint", "play.overlayHint"); T("play-sheet-hint", "play.sheetHint");
             foreach (var d in new[] { "Normal", "Hard", "Extreme" }) T("play-diff-" + d, "diff." + d);
         }
 
@@ -167,7 +168,7 @@ namespace ActorExplorer
         void RefreshResources(Actor a)
         {
             var res = root.Q("chargen-resources"); res.Clear();
-            foreach (var r in a.resources) res.Add(new Label($"{Strings.Res(r.key)}: {r.value}/{r.max}") { });
+            foreach (var r in a.resources) { var l = new Label($"{Strings.Res(r.key)} {r.value}/{r.max}"); l.AddToClassList("res-" + r.key); res.Add(l); }
         }
 
         void RefreshBudget(Actor a) => root.Q<Label>("chargen-budget").text = $"{Strings.T("chargen.budget")}: {a.SkillSpent(rs)} / {a.SkillBudget(rs)}";
@@ -180,8 +181,30 @@ namespace ActorExplorer
             root.Q<DropdownField>("play-actor").RegisterValueChangedCallback(_ => RefreshPlaySheet());
             root.Q<Button>("play-save").clicked += () => { gm.State.Save(); Status(Strings.T("play.saved")); };
             root.Q<Button>("play-title").clicked += () => Show("title");
-            root.Q<ScrollView>("play-log").RegisterCallback<ClickEvent>(_ => SkipTyping());
+            root.Q<Button>("play-logbtn").clicked += () => ToggleOverlay("play-log-panel");
+            root.Q<Button>("play-sheetbtn").clicked += () => ToggleOverlay("play-sheet-panel");
+            foreach (var name in new[] { "play-log-panel", "play-sheet-panel" })
+            {
+                var ov = root.Q(name);
+                ov.RegisterCallback<ClickEvent>(e => { if (e.target == ov) ov.style.display = DisplayStyle.None; });
+            }
+            root.Q("play-window").RegisterCallback<ClickEvent>(_ => SkipTyping());
+            root.Q("play-stage").RegisterCallback<ClickEvent>(_ => SkipTyping());
+            root.Q("play").RegisterCallback<KeyDownEvent>(e => { if (e.keyCode == KeyCode.Escape) CloseOverlays(); }, TrickleDown.TrickleDown);
             root.Q<Button>("play-diff-cancel").clicked += () => root.Q("play-diff").style.display = DisplayStyle.None;
+        }
+
+        void ToggleOverlay(string name)
+        {
+            var ov = root.Q(name);
+            bool open = ov.resolvedStyle.display == DisplayStyle.Flex;
+            CloseOverlays();
+            if (!open) ov.style.display = DisplayStyle.Flex;
+        }
+
+        void CloseOverlays()
+        {
+            foreach (var name in new[] { "play-log-panel", "play-sheet-panel", "play-diff", "play-check" }) root.Q(name).style.display = DisplayStyle.None;
         }
 
         void StartPlay(GmLoop loop, bool resume)
@@ -189,7 +212,12 @@ namespace ActorExplorer
             gm = loop;
             gm.OnEvent += LogEvent;
             pendingChecks = "";
-            var log = root.Q<ScrollView>("play-log"); log.Clear();
+            root.Q<ScrollView>("play-log").Clear();
+            typeQueue.Clear(); typing = false;
+            SetWindow("", "");
+            root.Q("play-check").style.display = DisplayStyle.None;
+            CloseOverlays();
+            root.Q<Label>("play-scenario").text = gm.Scenario.title.Get(gm.State.language);
             var dd = root.Q<DropdownField>("play-actor");
             dd.choices = gm.State.actors.Select(a => a.name).ToList();
             dd.SetValueWithoutNotify(dd.choices[0]);
@@ -201,6 +229,8 @@ namespace ActorExplorer
                 foreach (var m in gm.State.messages)
                     if (m.role == "user" && !string.IsNullOrEmpty(m.content)) Log(m.content, "log-player");
                     else if (m.role == "assistant" && !string.IsNullOrEmpty(m.content)) Log(m.content, "log-gm");
+                var last = gm.State.messages.LastOrDefault(m => m.role == "assistant" && !string.IsNullOrEmpty(m.content));
+                if (last != null) SetWindow("GM", last.content);
                 if (gm.State.ended) Status(Strings.T("play.ended"));
             }
             else _ = Ask("");
@@ -215,21 +245,23 @@ namespace ActorExplorer
             input.value = "";
             string line = $"[{actor}] {text}";
             Log(line, "log-player");
+            SetWindow(actor, text);
+            root.Q("play-check").style.display = DisplayStyle.None;
             await Ask(pendingChecks + line);
         }
 
         async Awaitable Ask(string message)
         {
-            if (string.IsNullOrEmpty(Settings.ApiKey)) { Log(Strings.T("play.noKey"), "log-error"); return; }
+            if (string.IsNullOrEmpty(Settings.ApiKey)) { Log(Strings.T("play.noKey"), "log-error"); SetWindow("", Strings.T("play.noKey")); return; }
             busy = true; Status(Strings.T("play.thinking")); root.Q<Button>("play-send").SetEnabled(false);
             try
             {
                 string reply = await gm.Step(message);
                 pendingChecks = "";
-                if (!string.IsNullOrEmpty(reply)) Log(reply, "log-gm", type: true);
+                if (!string.IsNullOrEmpty(reply)) { Log(reply, "log-gm"); typeQueue.Enqueue(("GM", reply)); }
                 Status(gm.State.ended ? Strings.T("play.ended") : "");
             }
-            catch (Exception e) { Log(Strings.T("play.error") + ": " + e.Message, "log-error"); Status(""); }
+            catch (Exception e) { Log(Strings.T("play.error") + ": " + e.Message, "log-error"); SetWindow("", Strings.T("play.error") + ": " + e.Message); Status(""); }
             finally { busy = false; root.Q<Button>("play-send").SetEnabled(true); RefreshPlaySheet(); }
         }
 
@@ -237,8 +269,15 @@ namespace ActorExplorer
         {
             if (gm == null) return;
             var a = gm.FindActor(root.Q<DropdownField>("play-actor").value) ?? gm.State.actors[0];
-            var sheet = root.Q<ScrollView>("play-sheet"); sheet.Clear();
-            foreach (var r in a.resources) { var l = new Label($"{Strings.Res(r.key)}: {r.value}/{r.max}"); l.AddToClassList("res-label"); sheet.Add(l); }
+            var res = root.Q("play-res"); res.Clear();
+            foreach (var r in a.resources)
+            {
+                var box = new VisualElement(); box.AddToClassList("res-item");
+                var n = new Label(Strings.Res(r.key)); n.AddToClassList("res-name");
+                var v = new Label($"{r.value}/{r.max}"); v.AddToClassList("res-val"); v.AddToClassList("hud");
+                box.Add(n); box.Add(v); res.Add(box);
+            }
+            var sheet = root.Q("play-sheet-grid"); sheet.Clear();
             foreach (var s in rs.skills)
             {
                 string id = s.id;
@@ -257,7 +296,7 @@ namespace ActorExplorer
                 var b = root.Q<Button>("play-diff-" + d);
                 b.clickable = new Clickable(() =>
                 {
-                    modal.style.display = DisplayStyle.None;
+                    CloseOverlays();
                     var ev = GmEvent.Check(a.name, skill, d, Check.Roll(rs.check, a.Skill(skill), d), manual: true);
                     LogEvent(ev);
                     pendingChecks += ev + "\n";
@@ -267,55 +306,70 @@ namespace ActorExplorer
 
         void Status(string s) => root.Q<Label>("play-status").text = s;
 
-        /// エンジンの出来事を和文化して表示。判定は「誰の何判定 → 出目/目標 → 結果」の 3 段。
+        /// メッセージウィンドウに即時表示（文字送りなし）。speaker が空なら名前プレートを隠す。
+        void SetWindow(string speaker, string text)
+        {
+            var plate = root.Q<Label>("play-speaker");
+            plate.text = speaker; plate.style.display = string.IsNullOrEmpty(speaker) ? DisplayStyle.None : DisplayStyle.Flex;
+            root.Q<Label>("play-msg").text = text;
+        }
+
+        /// エンジンの出来事を和文化して、判定カード（一時表示）とログの両方に出す。
         void LogEvent(GmEvent e)
         {
-            var log = root.Q<ScrollView>("play-log");
-            var box = new VisualElement();
-            box.AddToClassList("log-event");
-            void Line(string text, string cls) { var l = new Label(text); l.AddToClassList(cls); box.Add(l); }
+            string head, roll = "", outText = "", outCls = "";
             switch (e.kind)
             {
                 case "check":
-                    Line(Strings.F(e.manual ? "ev.checkManual" : "ev.check", e.actor, Strings.Skill(e.id), Strings.T("diff." + e.difficulty)), "ev-head");
-                    Line(Strings.F("ev.roll", e.result.roll, e.result.target), "ev-roll");
-                    Line(Strings.F("ev.result", Strings.T("out." + e.result.outcome)), "ev-out-" + e.result.outcome);
+                    head = Strings.F(e.manual ? "ev.checkManual" : "ev.check", e.actor, Strings.Skill(e.id), Strings.T("diff." + e.difficulty));
+                    roll = Strings.F("ev.roll", e.result.roll, e.result.target);
+                    outText = Strings.F("ev.result", Strings.T("out." + e.result.outcome));
+                    outCls = "ev-out-" + e.result.outcome;
                     break;
-                case "resource":
-                    Line(Strings.F("ev.resource", e.actor, Strings.Res(e.id), e.before, e.after, e.max, e.reason), "ev-head");
-                    break;
-                default:
-                    Line(Strings.F("ev.end", e.id), "ev-head");
-                    break;
+                case "resource": head = Strings.F("ev.resource", e.actor, Strings.Res(e.id), e.before, e.after, e.max, e.reason); break;
+                default: head = Strings.F("ev.end", e.id); break;
             }
+            // ログ
+            var log = root.Q<ScrollView>("play-log");
+            var box = new VisualElement(); box.AddToClassList("log-event");
+            void Line(string text, string cls) { if (string.IsNullOrEmpty(text)) return; var l = new Label(text); l.AddToClassList(cls); box.Add(l); }
+            Line(head, "ev-head"); Line(roll, "ev-roll"); Line(outText, outCls);
+            foreach (var l in box.Children().Skip(1)) l.AddToClassList("hud");
             log.Add(box);
             log.schedule.Execute(() => log.ScrollTo(box)).ExecuteLater(30);
+            // カード
+            var card = root.Q("play-check");
+            root.Q<Label>("play-check-head").text = head;
+            var r = root.Q<Label>("play-check-roll"); r.text = roll; r.style.display = roll == "" ? DisplayStyle.None : DisplayStyle.Flex;
+            var o = root.Q<Label>("play-check-out"); o.text = outText; o.style.display = outText == "" ? DisplayStyle.None : DisplayStyle.Flex;
+            foreach (Outcome oc in Enum.GetValues(typeof(Outcome))) o.RemoveFromClassList("ev-out-" + oc);
+            if (outCls != "") o.AddToClassList(outCls);
+            card.style.display = DisplayStyle.Flex; // 次の送信か Esc まで出しておく
         }
 
-        void Log(string text, string cls, bool type = false)
+        /// ログ画面へ 1 行追加（GM 本文・プレイヤー発言・エラー）。
+        void Log(string text, string cls)
         {
             var log = root.Q<ScrollView>("play-log");
-            var l = new Label(type ? "" : text);
+            var l = new Label(text);
             l.AddToClassList(cls);
             log.Add(l);
-            if (type) typeQueue.Enqueue((l, text));
             log.schedule.Execute(() => log.ScrollTo(l)).ExecuteLater(30);
         }
 
         void Update()
         {
-            if (typing == null && typeQueue.Count > 0) { (typing, typingText) = typeQueue.Dequeue(); typed = 0; }
-            if (typing == null) return;
+            if (!typing && typeQueue.Count > 0) { var (sp, t) = typeQueue.Dequeue(); typingText = t; typed = 0; typing = true; SetWindow(sp, ""); }
+            if (!typing) return;
             typed += Settings.TypeSpeed * Time.unscaledDeltaTime;
             int n = Mathf.Min(typingText.Length, (int)typed);
-            typing.text = typingText.Substring(0, n);
-            if (n >= typingText.Length) { typing = null; root.Q<ScrollView>("play-log").ScrollTo(root.Q<ScrollView>("play-log").contentContainer.Children().Last()); }
+            root.Q<Label>("play-msg").text = typingText.Substring(0, n);
+            if (n >= typingText.Length) typing = false;
         }
 
         void SkipTyping()
         {
-            if (typing != null) { typing.text = typingText; typing = null; }
-            while (typeQueue.Count > 0) { var (l, t) = typeQueue.Dequeue(); l.text = t; }
+            if (typing) { root.Q<Label>("play-msg").text = typingText; typing = false; }
         }
     }
 }

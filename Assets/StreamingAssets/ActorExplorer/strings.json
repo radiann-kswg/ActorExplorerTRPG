@@ -42,6 +42,10 @@
   { "key": "play.checkPrefix", "ja": "[判定]", "en": "[check]" },
   { "key": "play.difficulty", "ja": "難易度を選択", "en": "Choose difficulty" },
   { "key": "play.error", "ja": "エラー", "en": "Error" },
+  { "key": "play.log", "ja": "ログ", "en": "Log" },
+  { "key": "play.sheet", "ja": "シート", "en": "Sheet" },
+  { "key": "play.overlayHint", "ja": "外側をクリックか Esc で戻る", "en": "Click outside or press Esc to close" },
+  { "key": "play.sheetHint", "ja": "技能を押すと手動で判定できます", "en": "Press a skill to roll it yourself" },
   { "key": "play.noKey", "ja": "API キーが未設定です。設定画面で入力してください。", "en": "No API key. Enter one in Settings." },
 
   { "key": "ev.check", "ja": "{0} の {1} 判定（{2}）", "en": "{0}: {1} check ({2})" },

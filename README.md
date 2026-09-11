@@ -13,6 +13,10 @@
 
 > 開発中です。仕様は [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) を参照してください。
 
+### サードパーティ
+
+- フォント **x12y16pxMaruMonica**（本文）と **x14y24pxHeadUpDaisy**（見出し・数値）— hicc / 患者長ひっく、[x0y0pxFreeFont](https://hicchicc.github.io/00ff/)。`Assets/ActorExplorer/Fonts/` 以下。MIT の対象外で、各フォルダの `LICENSE.txt`（配布元の利用規約）に従います。
+
 ## English
 
 A Unity 6 framework for solo tabletop RPG play with an AI game master, driven by a **generic TRPG rulebook defined in JSON**. Inspired by Call of Cthulhu–style d100 systems, but keeps only the generic parts so it can be used for settings beyond mythos / horror investigation.
@@ -23,3 +27,7 @@ A Unity 6 framework for solo tabletop RPG play with an AI game master, driven by
 - MIT licensed. Fork it as a template and change the rulebook.
 
 > Work in progress. See [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) (Japanese).
+
+### Third-party
+
+- Fonts **x12y16pxMaruMonica** (body) and **x14y24pxHeadUpDaisy** (headings, numbers) by hicc ([x0y0pxFreeFont](https://hicchicc.github.io/00ff/)) — under `Assets/ActorExplorer/Fonts/`. Not covered by the MIT license; see each folder's `LICENSE.txt` (the distributor's terms).
