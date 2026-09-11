@@ -24,16 +24,22 @@ namespace ActorExplorer
             foreach (var r in t.rows) map[r.key] = r;
         }
 
-        public static string T(string key)
+        public static string T(string key) => T(key, Settings.Language);
+
+        /// 言語を明示して引く（AI へ渡すプロンプトはセッションの言語に従うため）。
+        public static string T(string key, string lang)
         {
             if (map == null) Load();
             if (!map.TryGetValue(key, out var r)) return key;
-            string s = Settings.Language == "en" ? r.en : r.ja;
+            string s = lang == "en" ? r.en : r.ja;
             return string.IsNullOrEmpty(s) ? (string.IsNullOrEmpty(r.ja) ? key : r.ja) : s;
         }
 
-        public static string Stat(string id) => T("stat." + id);
-        public static string Skill(string id) => T("skill." + id);
-        public static string Res(string id) => T("res." + id);
+        /// "{0}" 形式の穴埋め。
+        public static string F(string key, params object[] args) => string.Format(T(key), args);
+
+        public static string Stat(string id, string lang = null) => T("stat." + id, lang ?? Settings.Language);
+        public static string Skill(string id, string lang = null) => T("skill." + id, lang ?? Settings.Language);
+        public static string Res(string id, string lang = null) => T("res." + id, lang ?? Settings.Language);
     }
 }

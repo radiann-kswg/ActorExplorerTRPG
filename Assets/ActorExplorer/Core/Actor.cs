@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace ActorExplorer
 {
+    /// ランダム生成時の技能ポイントの配り方。
+    public enum SkillProfile { Generalist, Specialist }
+
     [Serializable] public class Entry { public string key; public int value; }
     [Serializable] public class ResEntry { public string key; public int value; public int max; }
 
@@ -43,6 +46,45 @@ namespace ActorExplorer
             foreach (var s in rs.skills) a.skills.Add(new Entry { key = s.id, value = Expr.Eval(s.init, a.Var) });
             foreach (var r in rs.resources) { int m = Expr.Eval(r.max, a.Var); a.resources.Add(new ResEntry { key = r.id, value = m, max = m }); }
             return a;
+        }
+
+        /// ランダム生成＋技能ポイントの自動配分（キャラ作成画面の「ランダム生成」）。
+        public static Actor CreateRandom(Ruleset rs, string name, SkillProfile profile)
+        {
+            var a = Create(rs, name);
+            a.Allocate(rs, profile);
+            return a;
+        }
+
+        /// 技能を初期値に戻してから予算（skillBudget）を配る。
+        /// Specialist: 主要 3 技能を 70〜80 まで。Generalist: 主要 4〜5 技能を 60〜70 まで。
+        /// 残りは別の 2〜4 技能に 5 点刻みで散らし、予算を使い切る（上限 Cap）。
+        public void Allocate(Ruleset rs, SkillProfile profile)
+        {
+            const int Step = 5, Cap = 85;
+            foreach (var s in rs.skills) SetSkill(s.id, Expr.Eval(s.init, Var));
+            int budget = SkillBudget(rs);
+            var ids = rs.skills.Select(s => s.id).OrderBy(_ => Expr.Rng.Next()).ToList();
+            bool spec = profile == SkillProfile.Specialist;
+            int majors = spec ? 3 : Expr.Rng.Next(4, 6);
+            int lo = spec ? 70 : 60, hi = spec ? 80 : 70;
+            var major = ids.Take(majors).ToList();
+            var minor = ids.Skip(majors).Take(Expr.Rng.Next(2, spec ? 4 : 5)).ToList();
+
+            // 主要技能: 1 つずつ目標値まで上げる（予算が少なくても最初の技能は確実に高くなる）
+            foreach (var id in major)
+            {
+                int target = Expr.Rng.Next(lo / Step, hi / Step + 1) * Step;
+                while (budget >= Step && Skill(id) + Step <= target) { SetSkill(id, Skill(id) + Step); budget -= Step; }
+            }
+            // 残りを副技能へ。副技能も上限なら主要技能へ戻し、それでも余れば Cap まで誰かに
+            var pool = minor.Concat(major).Concat(ids).ToList();
+            for (int guard = 0; budget >= Step && guard < 200; guard++)
+            {
+                var id = pool[guard % pool.Count];
+                if (Skill(id) + Step > Cap) continue;
+                SetSkill(id, Skill(id) + Step); budget -= Step;
+            }
         }
 
         /// 能力値を手で書き換えた後にリソース最大値を引き直す（現在値は最大値に合わせる）。

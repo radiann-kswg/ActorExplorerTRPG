@@ -34,7 +34,7 @@ namespace ActorExplorer.Editor
         {
             if (string.IsNullOrEmpty(Settings.ApiKey)) { Debug.LogError("[smoke] API key が未設定。Tools > ActorExplorer > Settings で入力してください"); return; }
             var rs = Ruleset.Load("sample-d100");
-            var pc = Actor.Create(rs, "Alex");
+            var pc = Actor.CreateRandom(rs, "Alex", SkillProfile.Generalist);
             var gm = GmLoop.New("sample-d100", "sample-01", new[] { pc }, Settings.Language);
             gm.OnEvent += e => Debug.Log("[smoke:event] " + e);
             try
@@ -42,9 +42,37 @@ namespace ActorExplorer.Editor
                 Debug.Log($"[smoke] {Settings.Provider} {Settings.Model} @ {Settings.BaseUrl}");
                 Debug.Log("[smoke:gm] " + await gm.Step(""));
                 Debug.Log("[smoke:gm] " + await gm.Step("[Alex] 待合室を隅々まで調べる。缶コーヒーにも触ってみる。"));
+                Debug.Log("[smoke:gm] " + await gm.Step("[Alex] 倉庫へ行って、棚を整理整頓しながら使えそうな道具を探す。"));
+                Debug.Log("[smoke] skills used: " + string.Join(", ", gm.State.messages.Where(m => m.role == "tool" && m.content.Contains("\"skill\"")).Select(m => m.content)));
                 Debug.Log($"[smoke] done. messages={gm.State.messages.Count} toolCalls={gm.State.messages.Count(m => m.role == "tool")} HP={pc.Resource("HP").value}/{pc.Resource("HP").max}");
             }
             catch (Exception e) { Debug.LogError("[smoke] " + e.Message); }
+        }
+    }
+
+    /// Tools > ActorExplorer > UI Preview: Play 中にプレイ画面へ切り替え、見本のログ（GM/プレイヤー/判定/リソース）を流し込む。
+    /// API を叩かずに見た目を確認するためのもの（UI 調整のとき用）。
+    public static class UiPreview
+    {
+        [MenuItem("Tools/ActorExplorer/UI Preview (Play mode)")]
+        static void Run()
+        {
+            if (!EditorApplication.isPlaying) { Debug.LogWarning("[ui-preview] Play 中に実行してください"); return; }
+            var app = UnityEngine.Object.FindFirstObjectByType<App>();
+            if (app == null) { Debug.LogWarning("[ui-preview] App が見つかりません"); return; }
+            var f = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+            var t = typeof(App);
+            var show = t.GetMethod("Show", f); var log = t.GetMethod("Log", f); var ev = t.GetMethod("LogEvent", f);
+            var rule = new CheckRule();
+            show.Invoke(app, new object[] { "play" });
+            log.Invoke(app, new object[] { "秋の夕方。三年前に廃線になった支線の終着駅「霧谷」に、あなたたちは立っている。待合室のベンチには、まだ温かい缶コーヒーが置かれている。", "log-gm", false });
+            log.Invoke(app, new object[] { "[アクター 1] 倉庫へ行って、棚を整理整頓しながら使えそうな道具を探す。", "log-player", false });
+            ev.Invoke(app, new object[] { GmEvent.Check("アクター 1", "organize", Difficulty.Normal, Check.Resolve(rule, 65, Difficulty.Normal, 42)) });
+            log.Invoke(app, new object[] { "棚は几帳面に整理されていて、保線用のヘッドランプとロープがすぐに見つかった。", "log-gm", false });
+            ev.Invoke(app, new object[] { GmEvent.Check("アクター 1", "climb", Difficulty.Hard, Check.Resolve(rule, 40, Difficulty.Hard, 77), true) });
+            ev.Invoke(app, new object[] { GmEvent.Resource("アクター 1", "HP", 13, 11, 13, "瓦礫で足を切った") });
+            ev.Invoke(app, new object[] { GmEvent.Check("アクター 1", "sense", Difficulty.Normal, Check.Resolve(rule, 55, Difficulty.Normal, 1)) });
+            Debug.Log("[ui-preview] done");
         }
     }
 }

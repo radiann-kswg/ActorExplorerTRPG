@@ -8,7 +8,8 @@ namespace ActorExplorer
 {
     [Serializable] public class StatDef { public string id; public string gen; }
     [Serializable] public class ResourceDef { public string id; public string max; }
-    [Serializable] public class SkillDef { public string id; public string init; }
+    /// desc は AI が「行動→技能」を引くための短い説明（任意）。表示名は strings.json 側。
+    [Serializable] public class SkillDef { public string id; public string init; public LocText desc = new LocText(); }
     [Serializable]
     public class CheckRule
     {

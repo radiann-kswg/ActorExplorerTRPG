@@ -104,6 +104,43 @@ namespace ActorExplorer.Tests
             Assert.AreEqual(0, a.SkillSpent(Sample()));
         }
 
+        [Test] public void SkillDescLoads()
+        {
+            var rs = Sample();
+            var organize = rs.skills.First(s => s.id == "organize");
+            StringAssert.Contains("片付け", organize.desc.ja);
+            StringAssert.Contains("Tidy", organize.desc.en);
+            Assert.AreEqual("", UnityEngine.JsonUtility.FromJson<SkillDef>("{\"id\":\"x\",\"init\":\"1\"}").desc.ja); // desc 無しでも落ちない
+        }
+
+        [TestCase(SkillProfile.Generalist, 4, 60, 5 * 65)] [TestCase(SkillProfile.Specialist, 3, 70, 3 * 75)]
+        public void AllocateSpendsBudgetOnMajors(SkillProfile profile, int majors, int floor, int enoughBudget)
+        {
+            var rs = Sample();
+            for (int seed = 0; seed < 50; seed++)
+            {
+                Expr.Rng = new Random(seed);
+                var a = Actor.CreateRandom(rs, "A", profile);
+                int budget = a.SkillBudget(rs);
+                Assert.AreEqual(budget, a.SkillSpent(rs), $"seed {seed}: 予算を使い切る");
+                Assert.IsTrue(a.skills.All(s => s.value <= 85), $"seed {seed}: 上限 85");
+                int high = a.skills.Count(s => s.value >= floor);
+                if (budget >= enoughBudget) Assert.GreaterOrEqual(high, majors, $"seed {seed}: 主要技能が {floor} 以上 (budget {budget})");
+                else Assert.GreaterOrEqual(high, 1, $"seed {seed}: 予算が少なくても 1 つは {floor} 以上 (budget {budget})");
+            }
+        }
+
+        [Test] public void AllocateIsRepeatableAndResets()
+        {
+            var rs = Sample();
+            Expr.Rng = new Random(11);
+            var a = Actor.Create(rs, "A");
+            a.Allocate(rs, SkillProfile.Specialist);
+            a.Allocate(rs, SkillProfile.Generalist);
+            Assert.AreEqual(a.SkillBudget(rs), a.SkillSpent(rs)); // 2 回目も初期値からやり直して使い切る
+            foreach (var s in rs.skills) Assert.GreaterOrEqual(a.Skill(s.id), Expr.Eval(s.init, a.Var), s.id + " は初期値を下回らない");
+        }
+
         [Test] public void ModifyClamps()
         {
             var a = Actor.Create(Sample(), "A");

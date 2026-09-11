@@ -58,7 +58,7 @@ namespace ActorExplorer.Tests
         [Test] public void ToolsRunAgainstEngine()
         {
             var gm = Make();
-            var events = new List<string>();
+            var events = new List<GmEvent>();
             gm.OnEvent += events.Add;
 
             string r = gm.RunTool("request_check", "{\"actor\":\"alex\",\"skill\":\"observe\",\"difficulty\":\"hard\"}");
@@ -78,6 +78,37 @@ namespace ActorExplorer.Tests
             gm.RunTool("end_session", "{\"outcome\":\"rescued\"}");
             Assert.IsTrue(gm.State.ended);
             Assert.AreEqual(3, events.Count);
+            Assert.AreEqual("check", events[0].kind);
+            Assert.AreEqual("observe", events[0].id);
+            Assert.AreEqual(Difficulty.Hard, events[0].difficulty);
+            Assert.AreEqual("resource", events[1].kind);
+            Assert.AreEqual(0, events[1].after);
+            Assert.AreEqual("end", events[2].kind);
+            Assert.AreEqual("rescued", events[2].id);
+            StringAssert.StartsWith("[check] Alex observe(Hard)", events[0].ToString());
+        }
+
+        [Test] public void PromptCarriesSkillTableAndCheckPolicy()
+        {
+            var gm = Make();
+            string p = gm.BuildSystemPrompt();
+            StringAssert.Contains("organize — 整理整頓 — 片付け", p);
+            StringAssert.Contains("STR — 物理", p);
+            StringAssert.Contains("HP — 耐久力", p);
+            StringAssert.Contains("Do NOT roll for routine", p);
+            StringAssert.Contains("never changes the facts", p);
+            string t = gm.ToolsJson();
+            StringAssert.Contains("organize — 整理整頓", t);
+            StringAssert.Contains("\"skillName\":\"観察\"", gm.RunTool("request_check", "{\"actor\":\"Alex\",\"skill\":\"observe\",\"difficulty\":\"normal\"}"));
+        }
+
+        [Test] public void PromptFollowsSessionLanguage()
+        {
+            var gm = Make();
+            gm.State.language = "en";
+            string p = gm.BuildSystemPrompt();
+            StringAssert.Contains("organize — Organization — Tidy", p);
+            StringAssert.DoesNotContain("整理整頓", p);
         }
 
         [Test] public void PromptAndToolsMentionRulesetContent()

@@ -48,7 +48,7 @@ namespace ActorExplorer
             T("title-label", "app.title"); T("title-new", "title.new"); T("title-continue", "title.continue"); T("title-settings", "title.settings"); T("title-quit", "title.quit");
             T("settings-title", "settings.title"); T("settings-provider", "settings.provider"); T("settings-baseUrl", "settings.baseUrl"); T("settings-model", "settings.model");
             T("settings-apiKey", "settings.apiKey"); T("settings-language", "settings.language"); T("settings-historyLimit", "settings.historyLimit"); T("settings-typeSpeed", "settings.typeSpeed"); T("settings-back", "settings.back");
-            T("chargen-title", "chargen.title"); T("chargen-scenario", "chargen.scenario"); T("chargen-name", "chargen.name"); T("chargen-random", "chargen.random"); T("chargen-add", "chargen.add"); T("chargen-remove", "chargen.remove");
+            T("chargen-title", "chargen.title"); T("chargen-scenario", "chargen.scenario"); T("chargen-name", "chargen.name"); T("chargen-random", "chargen.random"); T("chargen-profile", "chargen.profile"); T("chargen-add", "chargen.add"); T("chargen-remove", "chargen.remove");
             T("chargen-stats-label", "chargen.stats"); T("chargen-skills-label", "chargen.skills"); T("chargen-resources-label", "chargen.resources"); T("chargen-start", "chargen.start"); T("chargen-back", "chargen.back");
             T("play-send", "play.send"); T("play-save", "play.save"); T("play-title", "play.title"); T("play-diff-title", "play.difficulty"); T("play-diff-cancel", "settings.back");
             foreach (var d in new[] { "Normal", "Hard", "Extreme" }) T("play-diff-" + d, "diff." + d);
@@ -106,7 +106,10 @@ namespace ActorExplorer
             if (scen.choices.Count > 0) scen.value = scen.choices[0];
             root.Q<Button>("chargen-add").clicked += () => { AddActor(); RefreshChargen(); };
             root.Q<Button>("chargen-remove").clicked += () => { if (draft.Count > 1) { draft.RemoveAt(sel); sel = Mathf.Clamp(sel, 0, draft.Count - 1); RefreshChargen(); } };
-            root.Q<Button>("chargen-random").clicked += () => { string n = draft[sel].name; draft[sel] = Actor.Create(rs, n); RefreshChargen(); };
+            var profile = root.Q<DropdownField>("chargen-profile");
+            profile.choices = Profiles.Select(p => Strings.T("profile." + p)).ToList();
+            profile.index = 0;
+            root.Q<Button>("chargen-random").clicked += () => { string n = draft[sel].name; draft[sel] = Actor.CreateRandom(rs, n, Profile); RefreshChargen(); };
             root.Q<TextField>("chargen-name").RegisterValueChangedCallback(e => { draft[sel].name = e.newValue; RefreshActorList(); });
             root.Q<Button>("chargen-back").clicked += () => Show("title");
             root.Q<Button>("chargen-start").clicked += () =>
@@ -116,7 +119,10 @@ namespace ActorExplorer
             };
         }
 
-        void AddActor() { draft.Add(Actor.Create(rs, Strings.T("chargen.defaultName") + " " + (draft.Count + 1))); sel = draft.Count - 1; }
+        static readonly SkillProfile[] Profiles = { SkillProfile.Generalist, SkillProfile.Specialist };
+        SkillProfile Profile => Profiles[Mathf.Clamp(root.Q<DropdownField>("chargen-profile").index, 0, Profiles.Length - 1)];
+
+        void AddActor() { draft.Add(Actor.CreateRandom(rs, Strings.T("chargen.defaultName") + " " + (draft.Count + 1), Profile)); sel = draft.Count - 1; }
 
         void RefreshChargen() { RefreshActorList(); RefreshSheet(); }
 
@@ -181,7 +187,7 @@ namespace ActorExplorer
         void StartPlay(GmLoop loop, bool resume)
         {
             gm = loop;
-            gm.OnEvent += e => Log(e, "log-event");
+            gm.OnEvent += LogEvent;
             pendingChecks = "";
             var log = root.Q<ScrollView>("play-log"); log.Clear();
             var dd = root.Q<DropdownField>("play-actor");
@@ -252,15 +258,39 @@ namespace ActorExplorer
                 b.clickable = new Clickable(() =>
                 {
                     modal.style.display = DisplayStyle.None;
-                    var r = Check.Roll(rs.check, a.Skill(skill), d);
-                    string line = $"{Strings.T("play.checkPrefix")} {a.name} {Strings.Skill(skill)}({Strings.T("diff." + d)}) → {Strings.T("out." + r.outcome)} ({r.roll}/{r.target})";
-                    Log(line, "log-event");
-                    pendingChecks += $"[check] {a.name} {skill}({d}) → {r.outcome} ({r.roll}/{r.target})\n";
+                    var ev = GmEvent.Check(a.name, skill, d, Check.Roll(rs.check, a.Skill(skill), d), manual: true);
+                    LogEvent(ev);
+                    pendingChecks += ev + "\n";
                 });
             }
         }
 
         void Status(string s) => root.Q<Label>("play-status").text = s;
+
+        /// エンジンの出来事を和文化して表示。判定は「誰の何判定 → 出目/目標 → 結果」の 3 段。
+        void LogEvent(GmEvent e)
+        {
+            var log = root.Q<ScrollView>("play-log");
+            var box = new VisualElement();
+            box.AddToClassList("log-event");
+            void Line(string text, string cls) { var l = new Label(text); l.AddToClassList(cls); box.Add(l); }
+            switch (e.kind)
+            {
+                case "check":
+                    Line(Strings.F(e.manual ? "ev.checkManual" : "ev.check", e.actor, Strings.Skill(e.id), Strings.T("diff." + e.difficulty)), "ev-head");
+                    Line(Strings.F("ev.roll", e.result.roll, e.result.target), "ev-roll");
+                    Line(Strings.F("ev.result", Strings.T("out." + e.result.outcome)), "ev-out-" + e.result.outcome);
+                    break;
+                case "resource":
+                    Line(Strings.F("ev.resource", e.actor, Strings.Res(e.id), e.before, e.after, e.max, e.reason), "ev-head");
+                    break;
+                default:
+                    Line(Strings.F("ev.end", e.id), "ev-head");
+                    break;
+            }
+            log.Add(box);
+            log.schedule.Execute(() => log.ScrollTo(box)).ExecuteLater(30);
+        }
 
         void Log(string text, string cls, bool type = false)
         {

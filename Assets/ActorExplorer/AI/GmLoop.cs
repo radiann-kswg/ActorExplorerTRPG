@@ -27,6 +27,34 @@ namespace ActorExplorer
         public static SaveData Load() => JsonUtility.FromJson<SaveData>(System.IO.File.ReadAllText(Path));
     }
 
+    /// エンジン側の出来事（判定・リソース増減・終了）。ID/英語のまま持ち、表示側（UI）で和文化する。
+    [Serializable]
+    public struct GmEvent
+    {
+        public string kind;        // "check" | "resource" | "end"
+        public string actor;
+        public string id;          // 技能 ID / リソース ID / 終了 outcome
+        public Difficulty difficulty;
+        public CheckResult result;
+        public int before, after, max;
+        public string reason;
+        public bool manual;        // プレイヤーが自分で振った判定
+
+        public static GmEvent Check(string actor, string skill, Difficulty d, CheckResult r, bool manual = false)
+            => new GmEvent { kind = "check", actor = actor, id = skill, difficulty = d, result = r, manual = manual };
+        public static GmEvent Resource(string actor, string res, int before, int after, int max, string reason)
+            => new GmEvent { kind = "resource", actor = actor, id = res, before = before, after = after, max = max, reason = reason };
+        public static GmEvent End(string outcome) => new GmEvent { kind = "end", id = outcome };
+
+        /// AI やログ向けの英語 1 行（数値はここが正）。
+        public override string ToString() => kind switch
+        {
+            "check" => $"[check] {actor} {id}({difficulty}) → {result.outcome} ({result.roll}/{result.target})",
+            "resource" => $"[resource] {actor} {id} {before} → {after}/{max} ({reason})",
+            _ => $"[end] {id}",
+        };
+    }
+
     [Serializable] class CheckArgs { public string actor; public string skill; public string difficulty; }
     [Serializable] class ResourceArgs { public string actor; public string resource; public int delta; public string reason; }
     [Serializable] class EndArgs { public string outcome; }
@@ -38,7 +66,7 @@ namespace ActorExplorer
         public readonly Scenario Scenario;
         public readonly SaveData State;
         /// 判定結果・リソース増減などエンジン側の出来事（UI のログ用）。
-        public event Action<string> OnEvent;
+        public event Action<GmEvent> OnEvent;
 
         const int MaxToolRounds = 5;
 
@@ -87,7 +115,7 @@ namespace ActorExplorer
                     case "modify_resource": return ModifyResource(JsonUtility.FromJson<ResourceArgs>(argsJson));
                     case "end_session":
                         State.ended = true;
-                        OnEvent?.Invoke($"[end] {JsonUtility.FromJson<EndArgs>(argsJson)?.outcome}");
+                        OnEvent?.Invoke(GmEvent.End(JsonUtility.FromJson<EndArgs>(argsJson)?.outcome));
                         return "{\"ok\":true}";
                     default: return Err("unknown tool " + name);
                 }
@@ -101,8 +129,8 @@ namespace ActorExplorer
             if (!actor.HasSkill(a.skill)) return Err("unknown skill: " + a.skill + ". skills: " + string.Join(", ", Ruleset.skills.Select(s => s.id)));
             var d = ParseDifficulty(a.difficulty);
             var r = Check.Roll(Ruleset.check, actor.Skill(a.skill), d);
-            OnEvent?.Invoke($"[check] {actor.name} {a.skill}({d}) → {r.outcome} ({r.roll}/{r.target})");
-            return $"{{\"actor\":{LlmClient.Q(actor.name)},\"skill\":{LlmClient.Q(a.skill)},\"difficulty\":\"{d}\",\"roll\":{r.roll},\"target\":{r.target},\"outcome\":\"{r.outcome}\"}}";
+            OnEvent?.Invoke(GmEvent.Check(actor.name, a.skill, d, r));
+            return $"{{\"actor\":{LlmClient.Q(actor.name)},\"skill\":{LlmClient.Q(a.skill)},\"skillName\":{LlmClient.Q(Strings.Skill(a.skill, State.language))},\"difficulty\":\"{d}\",\"roll\":{r.roll},\"target\":{r.target},\"outcome\":\"{r.outcome}\"}}";
         }
 
         string ModifyResource(ResourceArgs a)
@@ -112,7 +140,7 @@ namespace ActorExplorer
             var res = actor.Resource(a.resource);
             int before = res.value;
             int v = actor.Modify(a.resource, a.delta);
-            OnEvent?.Invoke($"[resource] {actor.name} {a.resource} {before} → {v}/{res.max} ({a.reason})");
+            OnEvent?.Invoke(GmEvent.Resource(actor.name, a.resource, before, v, res.max, a.reason));
             return $"{{\"actor\":{LlmClient.Q(actor.name)},\"resource\":{LlmClient.Q(a.resource)},\"value\":{v},\"max\":{res.max}}}";
         }
 
@@ -132,18 +160,26 @@ namespace ActorExplorer
         public string BuildSystemPrompt()
         {
             string lang = State.language == "en" ? "English" : "Japanese";
+            string L = State.language;
             var sb = new StringBuilder();
             sb.AppendLine("You are the game master (GM) of a tabletop RPG played by one human who controls the player characters (PCs) listed below.");
             sb.AppendLine($"Narrate in {lang}. Stay in the world; never mention being an AI. Keep each reply concise (a few paragraphs), end by prompting the player for their next action.");
             sb.AppendLine("RULES: The game engine owns all numbers and dice. Never invent roll results, damage or resource values.");
-            sb.AppendLine("- When an action's outcome is uncertain, call request_check(actor, skill, difficulty) and narrate based on the returned outcome (Critical/Success/Failure/Fumble). Use difficulty 'normal' by default, 'hard' or 'extreme' only when justified.");
+            sb.AppendLine("- When an action's outcome is uncertain AND failure would change the story, call request_check(actor, skill, difficulty) and narrate based on the returned outcome (Critical/Success/Failure/Fumble).");
+            sb.AppendLine("- Do NOT roll for routine, safe or obvious actions (looking around a room, talking normally, walking, picking up an object in plain sight): simply narrate them as succeeding.");
+            sb.AppendLine("- Use difficulty 'normal' by default. Use 'hard' or 'extreme' only when the fiction clearly justifies it (darkness, time pressure, active resistance).");
+            sb.AppendLine("- Before requesting a check, pick the skill whose description in the SKILLS table best matches the player's action. Use the 'skill' ID from the first column, never the display name. If no skill fits, do not roll; narrate instead.");
+            sb.AppendLine("- Facts the PC directly touches, reads or sees in plain sight are perceived without a roll (a warm can feels warm). Roll only for hidden details, interpretation, or physical feats.");
+            sb.AppendLine("- A Failure means the PC did not notice the hidden detail / could not do the feat this time. It NEVER changes the facts in the GM NOTES: never describe an object or situation as different from the notes to explain a failure (if the notes say the coffee is warm, it stays warm; the PC simply fails to realise what that means). Leave a way to find the clue again later by another method, another place or another PC. A Fumble may add a small complication, but still does not alter the notes' facts.");
             sb.AppendLine("- When a resource changes (injury, healing, shock, spending), call modify_resource(actor, resource, delta, reason). Damage is a negative delta.");
             sb.AppendLine("- When the scenario reaches an ending (success, failure, escape, death of all PCs), call end_session(outcome) after the final narration.");
             sb.AppendLine("- Player messages are prefixed with the acting PC's name in brackets, e.g. [Name] text. Lines starting with [check] are results of rolls the player made themselves; treat them as fact.");
             sb.AppendLine();
-            sb.AppendLine("RULESET " + Ruleset.id + ": d100 roll-under. stats: " + string.Join(", ", Ruleset.stats.Select(s => s.id))
-                + ". resources: " + string.Join(", ", Ruleset.resources.Select(r => r.id))
-                + ". skills: " + string.Join(", ", Ruleset.skills.Select(s => s.id)) + ".");
+            sb.AppendLine("RULESET " + Ruleset.id + ": d100 roll-under (roll <= skill value succeeds; hard = half, extreme = one fifth).");
+            sb.AppendLine("STATS (id — name): " + string.Join(", ", Ruleset.stats.Select(s => $"{s.id} — {Strings.Stat(s.id, L)}")));
+            sb.AppendLine("RESOURCES (id — name): " + string.Join(", ", Ruleset.resources.Select(r => $"{r.id} — {Strings.Res(r.id, L)}")));
+            sb.AppendLine("SKILLS (id — name — what it covers):");
+            foreach (var s in Ruleset.skills) sb.AppendLine("  " + SkillRow(s, L));
             sb.AppendLine();
             sb.AppendLine("PLAYER CHARACTERS:");
             foreach (var a in State.actors)
@@ -161,16 +197,24 @@ namespace ActorExplorer
             return sb.ToString();
         }
 
+        /// "organize — 整理整頓 — 片付け・収納…"。desc が無ければ 2 列。
+        string SkillRow(SkillDef s, string lang)
+        {
+            string d = s.desc?.Get(lang);
+            return string.IsNullOrEmpty(d) ? $"{s.id} — {Strings.Skill(s.id, lang)}" : $"{s.id} — {Strings.Skill(s.id, lang)} — {d}";
+        }
+
         public string ToolsJson()
         {
             string skills = string.Join(",", Ruleset.skills.Select(s => LlmClient.Q(s.id)));
+            string skillTable = LlmClient.Q("Skill ID. Pick by the action's meaning: " + string.Join("; ", Ruleset.skills.Select(s => SkillRow(s, State.language))));
             string resources = string.Join(",", Ruleset.resources.Select(r => LlmClient.Q(r.id)));
             string actors = string.Join(",", State.actors.Select(a => LlmClient.Q(a.name)));
             return "[" +
                 "{\"type\":\"function\",\"function\":{\"name\":\"request_check\",\"description\":\"Ask the engine to roll a skill check for a PC. Returns roll, target and outcome.\"," +
                 "\"parameters\":{\"type\":\"object\",\"properties\":{" +
                 "\"actor\":{\"type\":\"string\",\"enum\":[" + actors + "]}," +
-                "\"skill\":{\"type\":\"string\",\"enum\":[" + skills + "]}," +
+                "\"skill\":{\"type\":\"string\",\"description\":" + skillTable + ",\"enum\":[" + skills + "]}," +
                 "\"difficulty\":{\"type\":\"string\",\"enum\":[\"normal\",\"hard\",\"extreme\"]}}," +
                 "\"required\":[\"actor\",\"skill\",\"difficulty\"]}}}," +
                 "{\"type\":\"function\",\"function\":{\"name\":\"modify_resource\",\"description\":\"Change a PC's resource by delta (negative = damage/loss). The engine clamps to 0..max and returns the new value.\"," +

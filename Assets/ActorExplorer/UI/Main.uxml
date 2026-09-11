@@ -36,9 +36,12 @@
           <ui:Button name="chargen-add" />
           <ui:Button name="chargen-remove" />
         </ui:VisualElement>
-        <ui:ScrollView name="chargen-sheet" class="col grow">
+        <ui:ScrollView name="chargen-sheet" class="col grow" mode="Vertical" horizontal-scroller-visibility="Hidden">
           <ui:TextField name="chargen-name" />
-          <ui:Button name="chargen-random" />
+          <ui:VisualElement class="row vcenter">
+            <ui:Button name="chargen-random" />
+            <ui:DropdownField name="chargen-profile" class="grow" />
+          </ui:VisualElement>
           <ui:Label name="chargen-stats-label" class="h2" />
           <ui:VisualElement name="chargen-stats" class="grid" />
           <ui:Label name="chargen-resources-label" class="h2" />

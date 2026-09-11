@@ -25,7 +25,14 @@
 .log { background-color: #1c1f27; border-radius: 6px; padding: 8px; }
 .log-gm { white-space: normal; margin-bottom: 8px; }
 .log-player { white-space: normal; margin-bottom: 8px; color: #b9d4ff; }
-.log-event { white-space: normal; margin-bottom: 8px; color: #ffd591; -unity-font-style: italic; }
+.log-event { margin-bottom: 8px; padding: 4px 8px; border-left-width: 3px; border-left-color: #ffd591; background-color: rgba(255, 213, 145, 0.08); }
+.log-event Label { white-space: normal; color: #ffd591; }
+.ev-head { -unity-font-style: bold; }
+.ev-roll { color: #e6e6e6; }
+.ev-out-Critical { color: #ffe066; -unity-font-style: bold; }
+.ev-out-Success { color: #9be27d; -unity-font-style: bold; }
+.ev-out-Failure { color: #ff9f9f; -unity-font-style: bold; }
+.ev-out-Fumble { color: #ff6b6b; -unity-font-style: bold; }
 .log-error { white-space: normal; margin-bottom: 8px; color: #ff8c8c; }
 .actor-dd { width: 160px; }
 #play-input { min-height: 60px; }

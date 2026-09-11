@@ -28,6 +28,9 @@
   { "key": "chargen.start", "ja": "開始", "en": "Start" },
   { "key": "chargen.back", "ja": "タイトルへ", "en": "Back to title" },
   { "key": "chargen.defaultName", "ja": "アクター", "en": "Actor" },
+  { "key": "chargen.profile", "ja": "配分", "en": "Build" },
+  { "key": "profile.Generalist", "ja": "万能型（主要4〜5技能を60〜70）", "en": "Generalist (4-5 skills at 60-70)" },
+  { "key": "profile.Specialist", "ja": "専門家型（主要3技能を70〜80）", "en": "Specialist (3 skills at 70-80)" },
 
   { "key": "play.send", "ja": "送信", "en": "Send" },
   { "key": "play.thinking", "ja": "GM が考えています…", "en": "The GM is thinking…" },
@@ -40,6 +43,13 @@
   { "key": "play.difficulty", "ja": "難易度を選択", "en": "Choose difficulty" },
   { "key": "play.error", "ja": "エラー", "en": "Error" },
   { "key": "play.noKey", "ja": "API キーが未設定です。設定画面で入力してください。", "en": "No API key. Enter one in Settings." },
+
+  { "key": "ev.check", "ja": "{0} の {1} 判定（{2}）", "en": "{0}: {1} check ({2})" },
+  { "key": "ev.checkManual", "ja": "{0} の {1} 判定（{2}）— 手動", "en": "{0}: {1} check ({2}) — manual" },
+  { "key": "ev.roll", "ja": "出目 {0} ／ 目標値 {1}", "en": "Roll {0} / Target {1}" },
+  { "key": "ev.result", "ja": "→ {0}", "en": "→ {0}" },
+  { "key": "ev.resource", "ja": "{0} の {1}: {2} → {3} / {4}（{5}）", "en": "{0}: {1} {2} → {3} / {4} ({5})" },
+  { "key": "ev.end", "ja": "セッション終了: {0}", "en": "Session ended: {0}" },
 
   { "key": "diff.Normal", "ja": "通常", "en": "Normal" },
   { "key": "diff.Hard", "ja": "困難", "en": "Hard" },
