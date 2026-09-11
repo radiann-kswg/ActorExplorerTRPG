@@ -1,0 +1,44 @@
+{
+  "id": "sample-d100",
+  "stats": [
+    { "id": "STR", "gen": "3d6*5" },
+    { "id": "CON", "gen": "3d6*5" },
+    { "id": "DEX", "gen": "3d6*5" },
+    { "id": "APP", "gen": "3d6*5" },
+    { "id": "POW", "gen": "3d6*5" },
+    { "id": "SIZ", "gen": "(2d6+6)*5" },
+    { "id": "INT", "gen": "(2d6+6)*5" },
+    { "id": "EDU", "gen": "(2d6+6)*5" }
+  ],
+  "resources": [
+    { "id": "HP", "max": "(STR+SIZ)/10" },
+    { "id": "MP", "max": "(CON+POW)/10" },
+    { "id": "SP", "max": "POW" },
+    { "id": "LP", "max": "3d6*5" }
+  ],
+  "skillBudget": "EDU*4",
+  "skills": [
+    { "id": "observe",   "init": "25" },
+    { "id": "sense",     "init": "20" },
+    { "id": "stealth",   "init": "20" },
+    { "id": "command",   "init": "15" },
+    { "id": "biomed",    "init": "5" },
+    { "id": "firstaid",  "init": "30" },
+    { "id": "organize",  "init": "20" },
+    { "id": "trivia",    "init": "20" },
+    { "id": "drive",     "init": "20" },
+    { "id": "decode",    "init": "10" },
+    { "id": "mechanics", "init": "10" },
+    { "id": "dodge",     "init": "DEX/2" },
+    { "id": "martial",   "init": "25" },
+    { "id": "firearms",  "init": "20" },
+    { "id": "climb",     "init": "20" }
+  ],
+  "check": {
+    "die": "1d100",
+    "hard": 2,
+    "extreme": 5,
+    "critical": 1,
+    "fumble": "96+ceil(max(0,SKILL-50)/20)"
+  }
+}

@@ -1,8 +1,14 @@
 {
   "name": "ActorExplorer.Editor",
   "rootNamespace": "ActorExplorer.Editor",
-  "references": [ "ActorExplorer" ],
-  "includePlatforms": [ "Editor" ],
+  "references": [
+    "ActorExplorer",
+    "UnityEditor.TestRunner",
+    "UnityEngine.TestRunner"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
   "overrideReferences": false,

@@ -46,11 +46,11 @@
   ],
   "skillBudget": "EDU*4",
   "skills": [
-    { "id": "observe", "base": "25" }, { "id": "sense", "base": "20" }, { "id": "stealth", "base": "20" },
-    { "id": "command", "base": "15" }, { "id": "biomed", "base": "5" }, { "id": "firstaid", "base": "30" },
-    { "id": "organize", "base": "20" }, { "id": "trivia", "base": "20" }, { "id": "drive", "base": "20" },
-    { "id": "decode", "base": "10" }, { "id": "mechanics", "base": "10" }, { "id": "dodge", "base": "DEX/2" },
-    { "id": "martial", "base": "25" }, { "id": "firearms", "base": "20" }, { "id": "climb", "base": "20" }
+    { "id": "observe", "init": "25" }, { "id": "sense", "init": "20" }, { "id": "stealth", "init": "20" },
+    { "id": "command", "init": "15" }, { "id": "biomed", "init": "5" }, { "id": "firstaid", "init": "30" },
+    { "id": "organize", "init": "20" }, { "id": "trivia", "init": "20" }, { "id": "drive", "init": "20" },
+    { "id": "decode", "init": "10" }, { "id": "mechanics", "init": "10" }, { "id": "dodge", "init": "DEX/2" },
+    { "id": "martial", "init": "25" }, { "id": "firearms", "init": "20" }, { "id": "climb", "init": "20" }
   ],
   "check": { "die": "1d100", "hard": 2, "extreme": 5, "critical": 1, "fumble": "96+ceil(max(0,SKILL-50)/20)" }
 }
@@ -58,7 +58,7 @@
 
 表示名（日本語／英語）は文字列テーブル側に `stat.STR = 物理 / Strength`、`skill.sense = 感性 / Perception` のように持つ。JSON の `id` は不変キー。
 
-**式ミニ言語**: `NdM`（ダイス）、`+ - * /`、括弧、能力値 ID、`ceil()` `max()`。整数除算は切り捨て。実装は「ダイスを正規表現で振ってから `System.Data.DataTable.Compute` で評価」を第一候補、Unity で使えなければ 60 行程度の再帰下降パーサ。
+**式ミニ言語**: `NdM`（ダイス）、`+ - * /`、括弧、能力値 ID、`ceil()` `floor()` `max()` `min()`。計算は double、結果は切り捨てて整数（`(STR+SIZ)/10` は整数除算と同じ、`ceil()` の中では小数のまま）。実装は `Core/Expr.cs` の再帰下降パーサ（DataTable.Compute は ceil/max を持たないので不採用）。
 
 **判定**: 目標値 = 技能値（通常）／÷2（困難）／÷5（極限）。出目 ≤ 目標値で成功。出目 = 1 でクリティカル。ファンブルは `96 + ceil(max(0, 技能−50)/20)` 以上（上限 100。技能 ≤ 50 → 96〜100、技能 90 → 98〜100、技能 ≥ 130 → 100 のみ）。成功段階は `Critical / Success / Failure / Fumble` の 4 値。
 
@@ -130,11 +130,11 @@ Dictionary は `key/value` の配列で代替。`system` は保存せず毎回�
 ```
 Assets/ActorExplorer/
   ActorExplorer.asmdef
-  Core/      Ruleset.cs Actor.cs Dice.cs Check.cs Expr.cs Scenario.cs SaveData.cs Strings.cs
+  Core/      Ruleset.cs Actor.cs Check.cs Expr.cs Scenario.cs SaveData.cs Strings.cs
   AI/        LlmClient.cs GmLoop.cs
   UI/        *.uxml *.uss  Screens.cs
   Editor/    ActorExplorer.Editor.asmdef GitTools.cs
-  Tests/     ActorExplorer.Tests.asmdef DiceTests.cs CheckTests.cs ExprTests.cs ResourceTests.cs
+  Tests/     ActorExplorer.Tests.asmdef CoreTests.cs
 Assets/StreamingAssets/ActorExplorer/  rulesets/  scenarios/  strings.json
 docs/REQUIREMENTS.md  AGENTS.md  CLAUDE.md  LICENSE(MIT, RadianN_kswg)  README.md
 ```
