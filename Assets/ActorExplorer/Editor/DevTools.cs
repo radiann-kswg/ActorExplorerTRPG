@@ -87,8 +87,9 @@ namespace ActorExplorer.Editor
         {
             ("https://hicchicc.github.io/00ff/x12y16pxMaruMonica.ttf", "Assets/ActorExplorer/Fonts/MaruMonica/x12y16pxMaruMonica.ttf"),
             ("https://hicchicc.github.io/00ff/x14y24pxHeadUpDaisy.ttf", "Assets/ActorExplorer/Fonts/HeadUpDaisy/x14y24pxHeadUpDaisy.ttf"),
-            // でんきチップは zip 配布。url が .zip なら中の同名 .ttf だけを取り出す
-            ("https://github.com/hicchicc/x8y12pxDenkiChip/releases/latest/download/x8y12pxDenkiChip.zip", "Assets/ActorExplorer/Fonts/DenkiChip/x8y12pxDenkiChip.ttf"),
+            // でんきチップは zip 配布。url が .zip なら中の同名 .ttf だけを取り出す。
+            // 版は同梱の LICENSE.txt（取得: Version 1.100）と揃えて固定。上げるときは URL と LICENSE.txt を一緒に直す
+            ("https://github.com/hicchicc/x8y12pxDenkiChip/releases/download/v1.100/x8y12pxDenkiChip.zip", "Assets/ActorExplorer/Fonts/DenkiChip/x8y12pxDenkiChip.ttf"),
         };
 
         [MenuItem("Tools/ActorExplorer/Fetch Fonts")]
@@ -103,8 +104,13 @@ namespace ActorExplorer.Editor
                     var bytes = http.GetByteArrayAsync(url).GetAwaiter().GetResult();
                     if (url.EndsWith(".zip"))
                         using (var zip = new System.IO.Compression.ZipArchive(new System.IO.MemoryStream(bytes)))
-                        using (var ttf = zip.GetEntry(System.IO.Path.GetFileName(path)).Open())
-                        using (var ms = new System.IO.MemoryStream()) { ttf.CopyTo(ms); bytes = ms.ToArray(); }
+                        {
+                            string name = System.IO.Path.GetFileName(path);
+                            var entry = zip.GetEntry(name);
+                            if (entry == null) { Debug.LogError($"[fonts] {url} の中に {name} が無い（配布 zip の構成が変わった？）"); continue; }
+                            using (var ttf = entry.Open())
+                            using (var ms = new System.IO.MemoryStream()) { ttf.CopyTo(ms); bytes = ms.ToArray(); }
+                        }
                     System.IO.File.WriteAllBytes(path, bytes);
                     Debug.Log($"[fonts] {path} ({bytes.Length} bytes)");
                 }
