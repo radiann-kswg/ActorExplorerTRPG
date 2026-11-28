@@ -50,13 +50,22 @@ Assets/StreamingAssets/ActorExplorer/  rulesets/sample-d100.json  scenarios/samp
 | B 技能ポイント | 完了 | `Actor.CreateRandom(rs, name, SkillProfile)`。万能型＝主要 4〜5 技能を 60〜70、専門家型＝3 技能を 70〜80、残りを副技能に 5 点刻み、予算 `EDU*4` を使い切る（上限 85）。キャラ作成の「配分」ドロップダウン。**初期値は据え置き**（実プレイの失敗率を見てから） |
 | C ダイス表示 | 完了 | `GmEvent`（kind/actor/id/difficulty/result/before/after/max/reason/manual/isStat）。UI は判定カード（画面中央、次の送信か Esc まで表示）＋ログの 3 段（誰の何判定／出目・目標値／→ 結果）。ID・英語はログに出ない |
 | D UI 美化 | 完了 | Claude Design のモック → `Main.uxml/.uss` を作り直し。全面の舞台（背景・立ち絵 3 枠は空スロット）、上帯（シナリオ名・リソース）、下のメッセージ窓（名前プレート・文字送り）、入力行。ログ／シート（手動判定）はオーバーレイ（外側クリックか Esc で閉じる）。本文 22px・UI 20px。配色 3 色: `#f2efe6` / `#0b0d12`〜`#171a22` / `#ffd591` |
-| E フォント | 完了 | `Assets/ActorExplorer/Fonts/MaruMonica/x12y16pxMaruMonica.ttf`（本文）と `HeadUpDaisy/x14y24pxHeadUpDaisy.ttf`（タイトル・リソース値、USS クラス `hud`）。各フォルダに配布元規約の `LICENSE.txt`、README に Third-party。`.ttf` は git 管理、`Tools > ActorExplorer > Fetch Fonts` で再取得可。**2026-11-28 追記**: 判定カードとログの数値行・結果行は `DenkiChip/x8y12pxDenkiChip.ttf`（v1.100・SIL OFL 1.1、USS クラス `chip`）へ変更。v1.000 は漢字が小 1〜4 年分だけで不採用だったが、v1.100 で JIS 第 1 水準 2,965 字を収録。12px 格子なのでサイズは 24/36px。参考: StudioWink『Re:Connect』開発ログ #7（会話はマルモニカ、見出し・タブはでんきチップ） |
+| E フォント | 完了 | ピクセルフォント 3 書体を `Assets/ActorExplorer/Fonts/` に同梱（使い分けとライセンスは下の「フォント」）。各フォルダに `LICENSE.txt`、README に Third-party。`.ttf` は git 管理、`Tools > ActorExplorer > Fetch Fonts` で再取得可 |
 | F 能力値判定 | 完了 | `request_check(skill=<能力値 ID>)` はエンジンが技能→能力値の順に探し、能力値の値をそのまま目標値に。`StatDef.desc`（いつ振るか）をプロンプト／tools に載せる。シートのオーバーレイに能力値ボタンも並ぶ |
 | G 非探索シナリオ | 完了 | `scenarios/sample-02.json`「一日店長、閉店まで」（喫茶店の 1 日、社会・日常系。command / sense / organize / trivia / APP / INT が中心）。スモークで動作確認（§3） |
 
-### フォント差し替え時の約束
+### フォント
 
-`Tests/FontTests.cs` が「出目・目標値・成功・失敗・クリティカル・ファンブル・数字」を判定書体（`chip`）が、技能名・能力値名などを本文書体が持っているかを `Font.HasCharacter` で検査する。書体を替えたらこのテストを通すこと（ピクセルフォントは収録漢字が少ないものがある）。
+| 書体 | 使う場所 | USS | ライセンス |
+| --- | --- | --- | --- |
+| `MaruMonica/x12y16pxMaruMonica.ttf` | 会話・本文・ボタンなど既定 | `.root` | 配布元の独自規約 |
+| `HeadUpDaisy/x14y24pxHeadUpDaisy.ttf` | タイトルロゴ・リソース値 | `.hud` | 配布元の独自規約 |
+| `DenkiChip/x8y12pxDenkiChip.ttf`（v1.100） | 判定カードとログの数値行・結果行 | `.chip` | SIL OFL 1.1 |
+
+- でんきチップは 2026-11-28 に追加（`47f72b8`）。それまで数値行・結果行は HeadUpDaisy だった。v1.000 は漢字が小 1〜4 年分だけで見送っていたが、v1.100 で JIS 第 1 水準 2,965 字を収録した。
+- でんきチップは 12px 格子なので、サイズは 12 の倍数にする（カード 36px・ログ 24px）。
+- 使い分けの参考: StudioWink『Re:Connect』開発ログ #7（会話はマルモニカ、見出し・タブはでんきチップ）。
+- **差し替え時の約束**: `Tests/FontTests.cs` が、判定書体（`.chip`）に「出目・目標値・成功・失敗・クリティカル・ファンブル・数字」、本文書体に技能名・能力値名などがあるかを `Font.HasCharacter` で検査する。書体を替えたらこのテストを通すこと（ピクセルフォントは収録漢字が少ないものがある）。
 
 ### 残っている観察・課題（次に見るもの）
 

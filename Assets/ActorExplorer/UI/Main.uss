@@ -1,6 +1,9 @@
 /* ActorExplorerTRPG — 平成中期ノベルゲーム風。基準解像度 1280x720（PanelSettings）。
    配色は 3 色: メイン #f2efe6（文字・枠）／サブ #0b0d12〜#171a22（地）／アクセント #ffd591（見出し・判定・強調）。
-   書体: 本文・会話 x12y16pxMaruMonica、タイトル・リソース値 x14y24pxHeadUpDaisy（.hud）、判定の数値と結果 x8y12pxDenkiChip（.chip・12px 格子なので 24/36px で使う）。いずれも患者長ひっく。
+   書体（いずれも患者長ひっく）:
+     会話・本文        x12y16pxMaruMonica（.root の既定）
+     タイトル・リソース値  x14y24pxHeadUpDaisy（.hud）
+     判定の数値と結果    x8y12pxDenkiChip（.chip。12px 格子なのでサイズは 12 の倍数）
    注意: UI Toolkit の USS は複合セレクタ .a.b が使えない。伸ばす要素は flex-basis:0; min-height:0。 */
 
 .root { flex-grow: 1; background-color: #14161c; color: #f2efe6; font-size: 20px;
