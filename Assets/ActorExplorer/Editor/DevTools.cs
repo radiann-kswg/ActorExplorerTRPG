@@ -87,6 +87,8 @@ namespace ActorExplorer.Editor
         {
             ("https://hicchicc.github.io/00ff/x12y16pxMaruMonica.ttf", "Assets/ActorExplorer/Fonts/MaruMonica/x12y16pxMaruMonica.ttf"),
             ("https://hicchicc.github.io/00ff/x14y24pxHeadUpDaisy.ttf", "Assets/ActorExplorer/Fonts/HeadUpDaisy/x14y24pxHeadUpDaisy.ttf"),
+            // でんきチップは zip 配布。url が .zip なら中の同名 .ttf だけを取り出す
+            ("https://github.com/hicchicc/x8y12pxDenkiChip/releases/latest/download/x8y12pxDenkiChip.zip", "Assets/ActorExplorer/Fonts/DenkiChip/x8y12pxDenkiChip.ttf"),
         };
 
         [MenuItem("Tools/ActorExplorer/Fetch Fonts")]
@@ -99,6 +101,10 @@ namespace ActorExplorer.Editor
                     if (System.IO.File.Exists(path)) { Debug.Log($"[fonts] skip (exists): {path}"); continue; }
                     System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
                     var bytes = http.GetByteArrayAsync(url).GetAwaiter().GetResult();
+                    if (url.EndsWith(".zip"))
+                        using (var zip = new System.IO.Compression.ZipArchive(new System.IO.MemoryStream(bytes)))
+                        using (var ttf = zip.GetEntry(System.IO.Path.GetFileName(path)).Open())
+                        using (var ms = new System.IO.MemoryStream()) { ttf.CopyTo(ms); bytes = ms.ToArray(); }
                     System.IO.File.WriteAllBytes(path, bytes);
                     Debug.Log($"[fonts] {path} ({bytes.Length} bytes)");
                 }

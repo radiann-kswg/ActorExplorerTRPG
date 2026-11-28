@@ -10,12 +10,16 @@ namespace ActorExplorer.Tests
     {
         const string Body = "Assets/ActorExplorer/Fonts/MaruMonica/x12y16pxMaruMonica.ttf";
         const string Hud = "Assets/ActorExplorer/Fonts/HeadUpDaisy/x14y24pxHeadUpDaisy.ttf";
+        const string Chip = "Assets/ActorExplorer/Fonts/DenkiChip/x8y12pxDenkiChip.ttf";
 
-        // 判定カード・ログの数値行と結果行（HUD 書体）で必ず出る文字
-        const string HudChars = "出目目標値成功失敗クリティカルファンブル0123456789/→ ";
+        // 判定カード・ログの数値行と結果行（.chip = でんきチップ）で必ず出る文字（strings.json の ev.roll / ev.result / out.* の ja・en）
+        const string CheckChars = "出目目標値成功失敗クリティカルファンブル0123456789/／→ RollTargetSuccessFailureCriticalFumble";
+        // タイトル・リソース値（.hud = HeadUpDaisy）
+        const string HudChars = "ActorExplorerTRPG0123456789/ ";
 
+        [TestCase(Chip, CheckChars)]
         [TestCase(Hud, HudChars)]
-        [TestCase(Body, HudChars + "判定通常困難極限手動耐久力行動力忍耐力幸福度観察感性隠密統括生物医学応急手当整理整頓雑学運転計算解読機械技術回避武術射撃登攀")]
+        [TestCase(Body, CheckChars + "判定通常困難極限手動耐久力行動力忍耐力幸福度観察感性隠密統括生物医学応急手当整理整頓雑学運転計算解読機械技術回避武術射撃登攀")]
         public void FontCoversUiText(string path, string chars)
         {
             var font = AssetDatabase.LoadAssetAtPath<Font>(path);
@@ -26,7 +30,7 @@ namespace ActorExplorer.Tests
 
         [Test] public void LicenseFilesAreBundled()
         {
-            foreach (var p in new[] { Body, Hud })
+            foreach (var p in new[] { Body, Hud, Chip })
                 Assert.IsTrue(System.IO.File.Exists(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(p), "LICENSE.txt")), p + " の隣に LICENSE.txt");
         }
     }

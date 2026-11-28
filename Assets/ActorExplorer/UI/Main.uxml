@@ -91,8 +91,8 @@
       <!-- 判定カード（一時表示） -->
       <ui:VisualElement name="play-check" class="check-card">
         <ui:Label name="play-check-head" class="ev-head" />
-        <ui:Label name="play-check-roll" class="ev-roll hud" />
-        <ui:Label name="play-check-out" class="ev-out hud" />
+        <ui:Label name="play-check-roll" class="ev-roll chip" />
+        <ui:Label name="play-check-out" class="ev-out chip" />
       </ui:VisualElement>
 
       <!-- メッセージウィンドウ -->

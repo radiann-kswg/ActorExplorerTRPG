@@ -342,7 +342,7 @@ namespace ActorExplorer
             var box = new VisualElement(); box.AddToClassList("log-event");
             void Line(string text, string cls) { if (string.IsNullOrEmpty(text)) return; var l = new Label(text); l.AddToClassList(cls); box.Add(l); }
             Line(head, "ev-head"); Line(roll, "ev-roll"); Line(outText, outCls);
-            foreach (var l in box.Children().Skip(1)) l.AddToClassList("hud");
+            foreach (var l in box.Children().Skip(1)) l.AddToClassList("chip");
             log.Add(box);
             log.schedule.Execute(() => log.ScrollTo(box)).ExecuteLater(30);
             // カード

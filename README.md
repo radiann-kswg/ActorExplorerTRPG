@@ -86,7 +86,7 @@ Assets/ActorExplorer/
   Core/   Expr（式）・Ruleset・Check（d100 判定）・Actor（PC・配分）・Scenario・Strings
   AI/     Settings（PlayerPrefs）・LlmClient（OpenAI 互換 chat/completions を 1 クラス）・GmLoop（GM ループ・tools・セーブ）
   UI/     App.cs（4 画面の配線）・Main.uxml/.uss・Main.unity
-  Fonts/  MaruMonica（本文）・HeadUpDaisy（数値・判定結果）＋各 LICENSE.txt
+  Fonts/  MaruMonica（本文）・HeadUpDaisy（タイトル・数値）・DenkiChip（判定の数値と結果）＋各 LICENSE.txt
   Editor/ GitTools・TestRunnerMenu・DevTools（Settings 窓 / GM Smoke Test / UI Preview / Fetch Fonts）
   Tests/  EditMode（ダイス・式・判定・配分・プロンプト・フォント収録）
 Assets/StreamingAssets/ActorExplorer/  rulesets/  scenarios/  strings.json
@@ -100,7 +100,7 @@ docs/   REQUIREMENTS.md（仕様の正本）・HANDOFF.md（現状と次の作�
 
 ### サードパーティ
 
-- フォント **x12y16pxMaruMonica**（本文）と **x14y24pxHeadUpDaisy**（見出し・数値）— hicc / 患者長ひっく、[x0y0pxFreeFont](https://hicchicc.github.io/00ff/)。`Assets/ActorExplorer/Fonts/` 以下。MIT の対象外で、各フォルダの `LICENSE.txt`（配布元の利用規約）に従います。フォントを差し替えるときは `Tests/FontTests.cs` で「出目・目標値・成功・失敗」などの収録を確認してください。
+- フォント **x12y16pxMaruMonica**（本文）、**x14y24pxHeadUpDaisy**（見出し・数値）、**x8y12pxDenkiChip**（判定の数値と結果・SIL OFL 1.1）— hicc / 患者長ひっく、[x0y0pxFreeFont](https://hicchicc.github.io/00ff/)。`Assets/ActorExplorer/Fonts/` 以下。MIT の対象外で、各フォルダの `LICENSE.txt`（配布元の利用規約／OFL）に従います。フォントを差し替えるときは `Tests/FontTests.cs` で「出目・目標値・成功・失敗」などの収録を確認してください。
 
 ## English
 
@@ -184,7 +184,7 @@ Assets/ActorExplorer/
   Core/   Expr, Ruleset, Check (d100), Actor (PCs, allocation), Scenario, Strings
   AI/     Settings (PlayerPrefs), LlmClient (one class for OpenAI-compatible chat/completions), GmLoop (GM loop, tools, save)
   UI/     App.cs (4 screens), Main.uxml/.uss, Main.unity
-  Fonts/  MaruMonica (body), HeadUpDaisy (numbers, outcomes) + LICENSE.txt each
+  Fonts/  MaruMonica (body), HeadUpDaisy (title, numbers), DenkiChip (check rolls and outcomes) + LICENSE.txt each
   Editor/ GitTools, TestRunnerMenu, DevTools (Settings window / GM Smoke Test / UI Preview / Fetch Fonts)
   Tests/  EditMode tests (dice, expressions, checks, allocation, prompt, font coverage)
 Assets/StreamingAssets/ActorExplorer/  rulesets/  scenarios/  strings.json
@@ -198,4 +198,4 @@ docs/   REQUIREMENTS.md (spec, Japanese), HANDOFF.md (status and next steps, Jap
 
 ### Third-party
 
-- Fonts **x12y16pxMaruMonica** (body) and **x14y24pxHeadUpDaisy** (headings, numbers) by hicc ([x0y0pxFreeFont](https://hicchicc.github.io/00ff/)) — under `Assets/ActorExplorer/Fonts/`. Not covered by the MIT license; see each folder's `LICENSE.txt` (the distributor's terms). When swapping fonts, run `Tests/FontTests.cs` to make sure the glyphs the UI needs are present.
+- Fonts **x12y16pxMaruMonica** (body), **x14y24pxHeadUpDaisy** (headings, numbers) and **x8y12pxDenkiChip** (check rolls and outcomes; SIL OFL 1.1) by hicc ([x0y0pxFreeFont](https://hicchicc.github.io/00ff/)) — under `Assets/ActorExplorer/Fonts/`. Not covered by the MIT license; see each folder's `LICENSE.txt` (the distributor's terms / OFL). When swapping fonts, run `Tests/FontTests.cs` to make sure the glyphs the UI needs are present.

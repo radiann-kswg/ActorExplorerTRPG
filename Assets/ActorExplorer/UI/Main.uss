@@ -1,6 +1,6 @@
 /* ActorExplorerTRPG — 平成中期ノベルゲーム風。基準解像度 1280x720（PanelSettings）。
    配色は 3 色: メイン #f2efe6（文字・枠）／サブ #0b0d12〜#171a22（地）／アクセント #ffd591（見出し・判定・強調）。
-   書体: 本文 x12y16pxMaruMonica、見出し・数値・判定結果 x14y24pxHeadUpDaisy（どちらも患者長ひっく）。
+   書体: 本文・会話 x12y16pxMaruMonica、タイトル・リソース値 x14y24pxHeadUpDaisy（.hud）、判定の数値と結果 x8y12pxDenkiChip（.chip・12px 格子なので 24/36px で使う）。いずれも患者長ひっく。
    注意: UI Toolkit の USS は複合セレクタ .a.b が使えない。伸ばす要素は flex-basis:0; min-height:0。 */
 
 .root { flex-grow: 1; background-color: #14161c; color: #f2efe6; font-size: 20px;
@@ -24,6 +24,7 @@
 .tag { background-color: rgba(9, 11, 18, 0.72); border-width: 2px; border-color: #f2efe6; font-size: 20px; padding: 4px 14px; }
 .title-logo { font-size: 48px; margin-bottom: 40px; letter-spacing: 4px; }
 .hud { -unity-font-definition: url("../Fonts/HeadUpDaisy/x14y24pxHeadUpDaisy.ttf"); }
+.chip { -unity-font-definition: url("../Fonts/DenkiChip/x8y12pxDenkiChip.ttf"); }
 
 /* 二重枠（半透明） */
 .frame { background-color: rgba(9, 11, 18, 0.78); border-width: 2px; border-color: #f2efe6; padding: 16px 20px; }
@@ -93,8 +94,8 @@
 .check-card { position: absolute; left: 400px; top: 280px; width: 480px; display: none; background-color: rgba(9, 11, 18, 0.92);
   border-width: 2px; border-color: #ffd591; padding: 12px 20px; }
 .check-card .ev-head { font-size: 22px; }
-.check-card .ev-roll { font-size: 32px; margin: 4px 0; }
-.check-card .ev-out { font-size: 30px; }
+.check-card .ev-roll { font-size: 36px; margin: 4px 0; }
+.check-card .ev-out { font-size: 36px; }
 
 /* ログ・シートのオーバーレイ */
 .overlay { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: #07080c; padding: 24px 40px; display: none; }
@@ -105,6 +106,7 @@
 .log-error { white-space: normal; margin-bottom: 14px; color: #ffd591; }
 .log-event { margin-bottom: 14px; padding: 6px 16px; border-left-width: 4px; border-left-color: #ffd591; background-color: rgba(255, 213, 145, 0.08); }
 .log-event Label { white-space: normal; font-size: 20px; }
+.log-event .chip { font-size: 24px; }
 .ev-head { color: #ffd591; }
 .ev-roll { color: #f2efe6; }
 .ev-out-Critical { color: #ffd591; }
