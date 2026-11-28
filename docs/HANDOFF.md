@@ -1,4 +1,4 @@
-# ActorExplorerTRPG 引き継ぎ書（2026-09-11 セッション 2 末）
+# ActorExplorerTRPG 引き継ぎ書（2026-09-11 セッション 2 末・2026-11-28 フォント追記）
 
 次のセッション以降で作業する人（人間でもエージェントでも）が、このファイルと `docs/REQUIREMENTS.md` だけ読めば続きに入れることを目的にする。仕様の正本は `docs/REQUIREMENTS.md`、ここは「現状」「初回プレイで見つかった改善点」「次にやる順番」。
 
@@ -14,7 +14,9 @@
 | `96148e9` | 引き継ぎ書 v1 |
 | `e749f84` | **A〜C**: 技能 `desc` 表と判定基準・失敗の扱いをプロンプトへ、技能ポイント自動配分（万能/専門家）、`GmEvent` 構造化と和文 3 段表示 |
 | `dd82844` | **D〜E**: 平成中期ノベル風 UI（メッセージ窓・判定カード・ログ/シートのオーバーレイ・3 色構成）、ピクセルフォント同梱 |
-| （次） | **F〜G**: 能力値判定（`request_check` に能力値 ID）、非探索シナリオ `sample-02`、フォント収録テスト |
+| `aa4f533` | **F〜G**: 能力値判定（`request_check` に能力値 ID）、非探索シナリオ `sample-02`、フォント収録テスト |
+| `fa7318c` `ba28bbf` `7a3672e` | CoplayDev MCP の依存（開発用）、README を公開向けに整備、Claude Code の自動コードレビュー（CI） |
+| `47f72b8` | 判定カード・ログの数値行と結果行をでんきチップ（`x8y12pxDenkiChip` v1.100）へ。会話・本文はマルモニカのまま（2026-11-28） |
 
 - ライブ確認済み: OpenAI `gpt-4.1-mini` で導入描写 → `request_check` → 失敗を踏まえた描写（`Tools > ActorExplorer > GM Smoke Test`）。User が実プレイも 1 回実施。
 - Windows ビルド: `Build/Windows/ActorExplorerTRPG.exe`（git 管理外）。
